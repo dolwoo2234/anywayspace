@@ -39,7 +39,11 @@
                 names = names.map(n => n.replace(regex, ''));
             });
 
-            output.value = names.map(n => n.trim()).filter(n => n !== "").join('\n');
+            // 필터링 및 공백 정리 후 정렬
+            names = names.map(n => n.trim()).filter(n => n !== "").sort();
+
+            // 번호 매기기
+            output.value = names.map((n, i) => `${i + 1}.${n}`).join('\n');
         }
 
         function copyToClipboard() {
