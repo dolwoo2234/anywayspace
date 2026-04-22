@@ -1,5 +1,5 @@
 /* 
-    Video Prompt Archive - 드래그 앤 드롭 및 데이터 로직 개선
+    Video Prompt Archive - 프롬프트 중심 그리드 로직
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentVideoURL = null;
     let currentFilter = 'all';
 
-    // 1. 초기 데이터 로드 (버전 관리로 깔끔한 시작 보장)
-    const savedData = localStorage.getItem('anyway_archive_v4');
+    // 1. 초기 데이터 로드 (v5 버전으로 업데이트하여 새로운 레이아웃 적용)
+    const savedData = localStorage.getItem('anyway_archive_v5');
     if (savedData) {
         archiveData = JSON.parse(savedData);
     } else {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderGrid();
     }
 
-    // 3. 태그 클라우드 생성
+    // 3. 태그 클라우드
     function renderTagCloud() {
         const allTags = new Set();
         archiveData.forEach(item => {
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 4. 그리드 렌더링
+    // 4. 그리드 렌더링 (가로형 1:1 레이아웃 적용)
     function renderGrid() {
         videoGrid.innerHTML = '';
         
@@ -74,7 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const cardSize = sizeSlider.value;
+        // 슬라이더 값에 따라 카드의 전체 너비를 조절 (최소 600px 이상 권장)
+        const baseWidth = sizeSlider.value;
         const filteredData = currentFilter === 'all' 
             ? archiveData 
             : archiveData.filter(item => item.tags && item.tags.includes(currentFilter));
@@ -87,7 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const tagContainer = clone.querySelector('.item-tags');
             const delBtn = clone.querySelector('.btn-delete');
 
-            card.style.width = `${cardSize}px`;
+            // 가로형 레이아웃이므로 전체 너비만 조절
+            card.style.width = `${baseWidth * 1.8}px`; // 가로로 기니까 비율 조정
+            card.style.maxWidth = '100%';
+            
             video.src = item.videoSrc;
             prompt.textContent = item.prompt;
 
@@ -109,36 +113,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. 드래그 앤 드롭 로직
+    // 5. 사이즈 조절 (실시간 반응)
+    sizeSlider.addEventListener('input', () => {
+        const cards = document.querySelectorAll('.video-item');
+        cards.forEach(card => {
+            card.style.width = `${sizeSlider.value * 1.8}px`;
+        });
+    });
+
+    // 6. 드래그 앤 드롭 및 파일 처리
     dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropZone.classList.add('dragover');
     });
 
     ['dragleave', 'dragend'].forEach(type => {
-        dropZone.addEventListener(type, () => {
-            dropZone.classList.remove('dragover');
-        });
+        dropZone.addEventListener(type, () => dropZone.classList.remove('dragover'));
     });
 
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.classList.remove('dragover');
-        
-        const files = e.dataTransfer.files;
-        if (files.length > 0 && files[0].type === 'video/mp4') {
-            handleFile(files[0]);
-        } else {
-            alert('MP4 파일만 업로드 가능합니다.');
+        if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type === 'video/mp4') {
+            handleFile(e.dataTransfer.files[0]);
         }
     });
 
     dropZone.addEventListener('click', () => videoUpload.click());
-
     videoUpload.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleFile(e.target.files[0]);
-        }
+        if (e.target.files.length > 0) handleFile(e.target.files[0]);
     });
 
     function handleFile(file) {
@@ -146,12 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentVideoURL = URL.createObjectURL(file);
     }
 
-    // 6. 새로운 세트 추가
+    // 7. 프로젝트 추가
     addProjectBtn.addEventListener('click', () => {
-        if (!currentVideoURL && !editPrompt.value) {
-            alert('영상 파일과 프롬프트를 입력해주세요.');
-            return;
-        }
+        if (!currentVideoURL && !editPrompt.value) return;
 
         const tags = editTags.value ? editTags.value.split(',').map(t => t.trim()).filter(t => t !== "") : [];
         const newItem = {
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveAndRefresh() {
-        localStorage.setItem('anyway_archive_v4', JSON.stringify(archiveData));
+        localStorage.setItem('anyway_archive_v5', JSON.stringify(archiveData));
         updateUI();
     }
 
@@ -186,12 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fileNameDisplay.textContent = 'No file chosen';
         currentVideoURL = null;
     }
-
-    // 사이즈 조절
-    sizeSlider.addEventListener('input', () => {
-        const cards = document.querySelectorAll('.video-item');
-        cards.forEach(card => card.style.width = `${sizeSlider.value}px`);
-    });
 
     adminToggle.addEventListener('click', () => document.body.classList.add('panel-open'));
     closePanel.addEventListener('click', () => document.body.classList.remove('panel-open'));

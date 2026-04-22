@@ -1,5 +1,5 @@
 /* 
-    Video Prompt Archive - 프리미엄 UI 개선 및 드래그 앤 드롭 최적화
+    Video Prompt Archive - 프롬프트 중심의 1:1 컴팩트 레이아웃
 */
 
 :root {
@@ -7,9 +7,8 @@
     --card-bg: #111111;
     --accent-color: #3d8bff;
     --action-green: #b5ff45;
-    --action-green-hover: #98e62d;
     --text-main: #ffffff;
-    --text-muted: #666666;
+    --text-muted: #888888;
     --border-color: #1a1a1a;
     --panel-width: 420px;
 }
@@ -24,10 +23,14 @@ body {
     background-color: var(--bg-dark);
     color: var(--text-main);
     font-family: 'Pretendard', sans-serif;
-    min-height: 100vh;
 }
 
-/* 헤더 & 컨트롤러 (미세 조정) */
+.showcase-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 40px;
+}
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -35,166 +38,125 @@ body {
     margin-bottom: 30px;
 }
 
-.btn-admin {
-    padding: 16px 32px;
-    background-color: var(--action-green);
-    border: none;
-    color: #000;
-    border-radius: 14px;
-    cursor: pointer;
-    font-weight: 800;
-    font-size: 1rem;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 8px 20px rgba(181, 255, 69, 0.2);
-}
-
-.btn-admin:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 30px rgba(181, 255, 69, 0.4);
-}
-
-/* 매니지먼트 패널 & 프리미엄 드롭 존 */
-.admin-panel {
-    position: fixed;
-    top: 0;
-    right: calc(var(--panel-width) * -1);
-    width: var(--panel-width);
-    height: 100%;
-    background-color: rgba(15, 15, 15, 0.98);
-    backdrop-filter: blur(20px);
-    border-left: 1px solid var(--border-color);
-    z-index: 1000;
-    transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    padding: 50px 40px;
-    box-shadow: -20px 0 50px rgba(0,0,0,0.5);
-}
-
-body.panel-open .admin-panel {
-    right: 0;
-}
-
-.drop-zone {
-    width: 100%;
-    height: 220px;
-    border: 2px dashed #222;
-    border-radius: 24px;
+/* 그리드 레이아웃: 한 줄에 하나씩 혹은 여러 개가 깔끔하게 배치되도록 */
+.video-grid {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: column; /* 기본적으로 세로 리스트 형태이나 가변 너비 적용 */
+    gap: 20px;
     align-items: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background-color: #0a0a0a;
-    margin-bottom: 15px;
-    position: relative;
-    overflow: hidden;
 }
 
-.drop-zone:hover {
-    border-color: #444;
-    background-color: #0d0d0d;
-}
-
-.drop-zone.dragover {
-    border-color: var(--action-green);
-    background-color: rgba(181, 255, 69, 0.03);
-    transform: scale(0.98);
-}
-
-.drop-icon {
-    font-size: 3.5rem;
-    margin-bottom: 15px;
-    filter: grayscale(1) opacity(0.5);
-    transition: all 0.3s ease;
-}
-
-.drop-zone.dragover .drop-icon {
-    filter: grayscale(0) opacity(1);
-    transform: translateY(-10px);
-}
-
-.drop-text {
-    font-size: 1rem;
-    color: var(--text-main);
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.drop-subtext {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-.file-name {
-    font-size: 0.8rem;
-    color: var(--action-green);
-    font-weight: 600;
-    text-align: center;
-    display: block;
-    margin-bottom: 25px;
-    padding: 8px 15px;
-    background: rgba(181, 255, 69, 0.05);
-    border-radius: 8px;
-}
-
-.input-group label {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.admin-panel input[type="text"], 
-.admin-panel textarea {
-    width: 100%;
-    background-color: #0a0a0a;
-    border: 1px solid #222;
-    border-radius: 14px;
-    color: var(--text-main);
-    padding: 16px;
-    font-family: inherit;
-    font-size: 0.95rem;
-    transition: all 0.3s;
-}
-
-.admin-panel input:focus, 
-.admin-panel textarea:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    background-color: #0d0d0d;
-}
-
-.btn-primary {
-    width: 100%;
-    padding: 20px;
-    background-color: var(--action-green);
-    color: #000;
-    border: none;
-    border-radius: 16px;
-    font-weight: 900;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 30px;
-    transition: all 0.3s;
-}
-
-.btn-primary:hover {
-    background-color: var(--action-green-hover);
-    transform: translateY(-2px);
-}
-
-/* 개별 카드 스타일 미세 조정 */
+/* 개별 카드: 1:1 가로 배치 레이아웃 */
 .video-item {
+    display: flex; /* 가로 배치 */
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    max-width: 100%; /* 부모 너비를 넘지 않음 */
 }
 
 .video-item:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    border-color: #333;
+    transform: translateY(-4px);
+}
+
+/* 영상 영역: 50% 너비 점유 */
+.video-wrapper {
+    width: 40%; /* 영상은 조금 더 작게 설정 가능 */
+    aspect-ratio: 16/9;
+    background-color: #000;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border-color);
+}
+
+.prompt-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 영상이 프레임에 꽉 차게 (형체 위주) */
+}
+
+/* 프롬프트 정보 영역: 60% 너비 점유 */
+.prompt-info {
+    flex: 1;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #141414; /* 프롬프트 영역 강조 */
+}
+
+.item-tags {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.mini-tag {
+    font-size: 0.7rem;
+    color: var(--action-green);
+    background-color: rgba(181, 255, 69, 0.1);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.prompt-box {
+    width: 100%;
+}
+
+.display-prompt {
+    font-size: 1.1rem; /* 텍스트 크기 확대 */
+    line-height: 1.5;
+    color: #efefef;
+    font-style: italic;
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* 최대 4줄까지 표시 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 삭제 버튼 위치 조정 */
+.btn-delete {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.3);
+    border: none;
+    color: #666;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+}
+
+.btn-delete:hover {
+    background-color: #ff4d4d;
+    color: white;
+}
+
+/* 슬라이더로 조절되는 카드 크기 대응 */
+.archive-mode .video-grid {
+    flex-direction: row; /* 슬라이더 조절 시 그리드 형태로 변경 가능 */
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* 반응형 모바일 대응 */
+@media (max-width: 768px) {
+    .video-item {
+        flex-direction: column;
+        width: 100% !important;
+    }
+    .video-wrapper {
+        width: 100%;
+    }
 }
