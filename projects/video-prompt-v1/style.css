@@ -1,0 +1,182 @@
+/* 
+    Video Prompt Showcase 전용 스타일 시트
+    시각적 몰입감을 위해 여백과 타이포그래피에 집중
+*/
+
+:root {
+    --bg-dark: #0a0a0a;          /* 더 깊은 다크 배경 */
+    --card-bg: #151515;          /* 카드 형태의 배경색 */
+    --accent-color: #3d8bff;     /* 포인트를 주는 색상 (블루) */
+    --text-main: #ffffff;
+    --text-muted: #888888;
+    --border-color: #222222;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Pretendard', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.showcase-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+/* 헤더 섹션 */
+.header {
+    margin-bottom: 50px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: var(--accent-color);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* 메인 콘텐츠 그리드 레이아웃 */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px; /* 영상 1 : 프롬프트 고정너비 */
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* 영상 영역 */
+.video-section {
+    width: 100%;
+}
+
+.video-wrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #000;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    border: 1px solid var(--border-color);
+}
+
+#prompt-video {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16/9; /* 영상 비율에 맞게 조정 가능 */
+}
+
+.video-status {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 6px 14px;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-main);
+}
+
+/* 프롬프트 영역 */
+.prompt-section {
+    position: sticky;
+    top: 60px;
+}
+
+.prompt-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 30px;
+}
+
+.prompt-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    letter-spacing: 0.05em;
+}
+
+.prompt-box {
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid var(--accent-color);
+}
+
+#prompt-text {
+    font-size: 1.05rem;
+    color: #efefef;
+    font-style: italic;
+    word-break: keep-all;
+}
+
+.prompt-meta {
+    display: flex;
+    gap: 30px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.meta-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.meta-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* 푸터 */
+.footer {
+    margin-top: 80px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* 반응형 레이아웃 */
+@media (max-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+    .prompt-section {
+        position: static;
+    }
+}
