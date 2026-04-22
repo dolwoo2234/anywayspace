@@ -1,350 +1,40 @@
 /* 
-    Anyway Space - Prompt Archive 
-    High-End UI Renewal 
+    Prompt Archive - UI 디자인 개선 (태그 버튼) 및 로직 안정화
 */
 
-:root {
-    --bg-base: #000000;
-    --bg-card: #0d0d0d;
-    --bg-accent: #1a1a1a;
-    --text-main: #ffffff;
-    --text-dim: #777777;
-    --accent: #b5ff45; /* Signature Neon Green */
-    --accent-blue: #3d8bff;
-    --border: rgba(255, 255, 255, 0.08);
-    --panel-width: 420px;
-    --radius-lg: 24px;
-    --radius-md: 12px;
-}
-
-body.light-theme {
-    --bg-base: #f4f4f7;
-    --bg-card: #ffffff;
-    --bg-accent: #f0f0f3;
-    --text-main: #121212;
-    --text-dim: #999999;
-    --accent: #2ecc71;
-    --border: rgba(0, 0, 0, 0.05);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-}
-
-body {
-    background-color: var(--bg-base);
-    color: var(--text-main);
-    font-family: 'Pretendard', sans-serif;
-    transition: background-color 0.4s ease;
-    overflow-x: hidden;
-}
-
-.showcase-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 60px 40px;
-}
-
-/* ==========================================
-   HEADER RENEWAL
-   ========================================== */
-.main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+.filter-nav {
     margin-bottom: 50px;
+    padding: 10px 0;
 }
 
-.collection-badge {
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.15em;
-    color: var(--accent);
-    margin-bottom: 12px;
-    display: block;
-}
-
-.main-title {
-    font-size: 3rem;
-    font-weight: 900;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    margin-bottom: 10px;
-}
-
-.main-subtitle {
-    color: var(--text-dim);
-    font-size: 1rem;
-    font-weight: 400;
-}
-
-.control-center {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-
-.control-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.control-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-}
-
-#size-slider {
-    width: 120px;
-    height: 3px;
-    appearance: none;
-    background: var(--bg-accent);
-    border-radius: 2px;
-    outline: none;
-}
-
-#size-slider::-webkit-slider-thumb {
-    appearance: none;
-    width: 12px;
-    height: 12px;
-    background: var(--text-main);
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.action-group {
+.tag-flex {
     display: flex;
     gap: 12px;
-}
-
-.icon-button {
-    width: 54px;
-    height: 54px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.primary-action-btn {
-    padding: 0 28px;
-    height: 54px;
-    background-color: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 16px;
-    font-weight: 800;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.primary-action-btn:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 30px rgba(181, 255, 69, 0.2);
-}
-
-/* ==========================================
-   GRID & CARD RENEWAL
-   ========================================== */
-.modern-grid {
-    display: flex;
     flex-wrap: wrap;
-    gap: 30px;
-    justify-content: flex-start;
-}
-
-.archive-card {
-    display: flex;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-}
-
-.archive-card:hover {
-    transform: scale(1.02);
-    border-color: rgba(255,255,255,0.2);
-    box-shadow: 0 40px 80px rgba(0,0,0,0.4);
-}
-
-.card-media {
-    width: 42%;
-    aspect-ratio: 16/9;
-    background: #000;
-    position: relative;
-    border-right: 1px solid var(--border);
-}
-
-.prompt-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.status-overlay {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.6rem;
-    font-weight: 800;
-    color: var(--accent);
-}
-
-.card-data {
-    flex: 1;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.card-tags {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
 }
 
 .tag-pill {
-    padding: 4px 12px;
-    background: var(--bg-accent);
+    padding: 10px 24px;
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 100px;
-    font-size: 0.7rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--text-dim);
-    transition: all 0.2s;
-}
-
-.display-prompt {
-    font-size: 1.15rem;
-    line-height: 1.6;
-    color: var(--text-main);
-    font-style: italic;
-    opacity: 0.9;
-}
-
-.delete-action {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-size: 1.5rem;
     cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    text-transform: capitalize;
 }
 
-.archive-card:hover .delete-action {
-    opacity: 0.5;
-}
-
-/* ==========================================
-   DRAWER RENEWAL
-   ========================================== */
-.curator-drawer {
-    position: fixed;
-    top: 0;
-    right: calc(var(--panel-width) * -1);
-    width: var(--panel-width);
-    height: 100%;
-    background-color: var(--panel-bg);
-    backdrop-filter: blur(30px);
-    border-left: 1px solid var(--border);
-    z-index: 1000;
-    transition: right 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: -40px 0 100px rgba(0,0,0,0.4);
-}
-
-body.panel-open .curator-drawer {
-    right: 0;
-}
-
-.panel-inner {
-    padding: 60px 40px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.drawer-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px;
-}
-
-.form-section {
-    margin-bottom: 30px;
-}
-
-.form-section label {
-    font-size: 0.7rem;
-    font-weight: 800;
-    color: var(--text-dim);
-    margin-bottom: 12px;
-    display: block;
-    letter-spacing: 0.05em;
-}
-
-.premium-drop-zone {
-    width: 100%;
-    height: 140px;
-    border: 1px dashed var(--border);
-    border-radius: 20px;
-    background: rgba(255,255,255,0.02);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.premium-drop-zone:hover {
-    background: rgba(255,255,255,0.05);
-    border-color: var(--accent);
-}
-
-.form-section input, .form-section textarea {
-    width: 100%;
+.tag-pill:hover {
     background: var(--bg-accent);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 18px;
     color: var(--text-main);
-    font-family: inherit;
-    transition: border-color 0.2s;
+    border-color: rgba(255,255,255,0.2);
 }
 
-.submit-btn {
-    width: 100%;
-    padding: 22px;
+.tag-pill.active {
     background: var(--accent);
     color: #000;
-    border: none;
-    border-radius: 20px;
-    font-weight: 900;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 20px;
+    border-color: var(--accent);
+    transform: scale(1.05);
 }
