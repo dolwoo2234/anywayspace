@@ -9,70 +9,74 @@
 </head>
 <body class="archive-mode">
     <div class="showcase-container">
-        <!-- 상단 헤더 -->
         <header class="header">
             <div class="header-left">
                 <span class="badge">Collection #01</span>
                 <h1>Video AI Archive</h1>
-                <p class="subtitle">주요 태그와 인터랙티브 레이아웃으로 영상을 탐색하세요.</p>
+                <p class="subtitle">모두가 공유할 수 있는 영상 프롬프트 아카이브입니다.</p>
             </div>
-            
             <div class="header-controls">
                 <div class="size-controller">
                     <label>View Size</label>
-                    <input type="range" id="size-slider" min="280" max="800" value="400">
+                    <input type="range" id="size-slider" min="280" max="600" value="400">
                 </div>
                 <button id="admin-toggle" class="btn-admin">+ Add New Project</button>
             </div>
         </header>
 
-        <!-- 태그 필터 바 -->
         <nav class="filter-bar">
             <div id="tag-cloud" class="tag-cloud">
                 <button class="tag-chip active" data-tag="all">All Works</button>
             </div>
         </nav>
 
-        <!-- 메인 콘텐츠 -->
         <main id="video-grid" class="video-grid">
-            <!-- 동적 렌더링 -->
+            <!-- 데이터가 로드되면 여기에 나타납니다 -->
         </main>
 
-        <!-- 매니지먼트 패널 (드래그 앤 드롭 추가) -->
         <aside id="admin-panel" class="admin-panel">
             <div class="panel-header">
-                <h3>Add New Project</h3>
+                <h3>Project Settings</h3>
                 <button id="close-panel" class="btn-close">&times;</button>
             </div>
             <div class="panel-body">
-                <!-- 드래그 앤 드롭 업로드 영역 -->
+                <!-- 드래그 앤 드롭 업로드 -->
                 <div class="input-group">
-                    <label>Video Upload (.mp4)</label>
+                    <label>Step 1. Video Upload</label>
                     <div id="drop-zone" class="drop-zone">
                         <div class="drop-zone-content">
                             <span class="drop-icon">🎬</span>
-                            <p class="drop-text">Drag & Drop video here</p>
-                            <p class="drop-subtext">or click to browse</p>
+                            <p class="drop-text">Drag & Drop for Preview</p>
                         </div>
                         <input type="file" id="video-upload" accept="video/mp4" hidden>
                     </div>
-                    <span id="file-name" class="file-name">No file chosen</span>
+                </div>
+
+                <!-- 고정 경로 입력 (영구 저장용) -->
+                <div class="input-group">
+                    <label>Step 2. Permanent Video Path (Optional)</label>
+                    <input type="text" id="edit-video-path" placeholder="e.g. assets/my-video.mp4">
+                    <p class="input-hint">GitHub에 올린 파일 경로를 적으면 새로고침해도 유지됩니다.</p>
                 </div>
 
                 <div class="input-group">
-                    <label>Tags (Comma separated)</label>
-                    <input type="text" id="edit-tags" placeholder="e.g. Cyberpunk, Neon, Rain">
+                    <label>Step 3. Tags & Prompt</label>
+                    <input type="text" id="edit-tags" placeholder="Tags (Comma separated)">
+                    <textarea id="edit-prompt" placeholder="Enter Prompt here..."></textarea>
                 </div>
-                <div class="input-group">
-                    <label>Prompt Text</label>
-                    <textarea id="edit-prompt" placeholder="프롬프트를 입력하세요..."></textarea>
-                </div>
+
                 <button id="add-project" class="btn-primary">Add to Archive</button>
+
+                <!-- 데이터 공유용 Export 기능 -->
+                <div class="export-section" style="margin-top: 40px; border-top: 1px solid #222; padding-top: 20px;">
+                    <label style="font-size: 0.7rem; color: #666; display: block; margin-bottom: 10px;">FOR SHARING (JSON)</label>
+                    <button id="export-data" class="btn-secondary" style="width: 100%;">Copy All Data to Share</button>
+                    <p class="input-hint">복사한 코드를 저(Gemini)에게 주시면 모두가 볼 수 있게 배포해 드립니다.</p>
+                </div>
             </div>
         </aside>
     </div>
 
-    <!-- 개별 비디오 세트 템플릿 -->
     <template id="video-item-template">
         <div class="video-item">
             <div class="video-wrapper">

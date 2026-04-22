@@ -1,5 +1,5 @@
 /* 
-    Video Prompt Archive - 프롬프트 중심 그리드 로직
+    Video Prompt Archive - 배포 및 영구 저장 로직
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,33 +11,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminToggle = document.getElementById('admin-toggle');
     const closePanel = document.getElementById('close-panel');
     const addProjectBtn = document.getElementById('add-project');
+    const exportBtn = document.getElementById('export-data');
     
     const dropZone = document.getElementById('drop-zone');
     const videoUpload = document.getElementById('video-upload');
     const editPrompt = document.getElementById('edit-prompt');
     const editTags = document.getElementById('edit-tags');
-    const fileNameDisplay = document.getElementById('file-name');
+    const editVideoPath = document.getElementById('edit-video-path');
+    const fileNameDisplay = document.createElement('span'); // 동적 생성
+
+    // [중요] 기본 데이터: 당신이 나중에 줄 JSON 코드가 여기에 들어갑니다.
+    // 다른 사람들이 접속했을 때 이 목록이 기본으로 보입니다.
+    const DEFAULT_DATA = [
+        {
+            id: 1,
+            prompt: "Anyway Space에 오신 것을 환영합니다. 당신의 첫 프롬프트를 등록해보세요.",
+            videoSrc: "assets/video.mp4",
+            tags: ["Welcome", "Guide"]
+        }
+    ];
 
     let archiveData = [];
     let currentVideoURL = null;
     let currentFilter = 'all';
 
-    // 1. 초기 데이터 로드 (v5 버전으로 업데이트하여 새로운 레이아웃 적용)
-    const savedData = localStorage.getItem('anyway_archive_v5');
+    // 1. 데이터 로드: LocalStorage(내 작업) + DEFAULT_DATA(서버 작업)
+    const savedData = localStorage.getItem('anyway_archive_shared_v1');
     if (savedData) {
         archiveData = JSON.parse(savedData);
     } else {
-        archiveData = [];
+        archiveData = DEFAULT_DATA;
     }
     updateUI();
 
-    // 2. 전체 UI 업데이트
     function updateUI() {
         renderTagCloud();
         renderGrid();
     }
 
-    // 3. 태그 클라우드
     function renderTagCloud() {
         const allTags = new Set();
         archiveData.forEach(item => {
@@ -65,16 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 4. 그리드 렌더링 (가로형 1:1 레이아웃 적용)
     function renderGrid() {
         videoGrid.innerHTML = '';
-        
         if (archiveData.length === 0) {
-            videoGrid.innerHTML = `<div style="padding: 100px; color: #444; font-size: 1.1rem; text-align: center; width: 100%; font-weight: 500;">아카이브가 비어 있습니다.<br><span style="color: #666; font-size: 0.9rem;">상단의 '+ Add New Project'를 눌러 시작하세요.</span></div>`;
+            videoGrid.innerHTML = `<div style="padding: 100px; color: #444; font-size: 1.1rem; text-align: center; width: 100%;">데이터가 없습니다.</div>`;
             return;
         }
 
-        // 슬라이더 값에 따라 카드의 전체 너비를 조절 (최소 600px 이상 권장)
         const baseWidth = sizeSlider.value;
         const filteredData = currentFilter === 'all' 
             ? archiveData 
@@ -88,10 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tagContainer = clone.querySelector('.item-tags');
             const delBtn = clone.querySelector('.btn-delete');
 
-            // 가로형 레이아웃이므로 전체 너비만 조절
-            card.style.width = `${baseWidth * 1.8}px`; // 가로로 기니까 비율 조정
-            card.style.maxWidth = '100%';
-            
+            card.style.width = `${baseWidth * 1.8}px`;
             video.src = item.videoSrc;
             prompt.textContent = item.prompt;
 
@@ -104,61 +109,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            delBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                deleteItem(item.id);
+            delBtn.addEventListener('click', () => {
+                if(confirm('삭제하시겠습니까? (로컬 저장소에서만 삭제됩니다)')) {
+                    archiveData = archiveData.filter(i => i.id !== item.id);
+                    saveAndRefresh();
+                }
             });
             
             videoGrid.appendChild(clone);
         });
     }
 
-    // 5. 사이즈 조절 (실시간 반응)
-    sizeSlider.addEventListener('input', () => {
-        const cards = document.querySelectorAll('.video-item');
-        cards.forEach(card => {
-            card.style.width = `${sizeSlider.value * 1.8}px`;
-        });
-    });
+    // 파일 처리
+    function handleFile(file) {
+        currentVideoURL = URL.createObjectURL(file);
+        // 미리보기를 위해 첫 번째 카드에 즉시 반영하는 로직 대신 알림
+        alert(`Preview loaded: ${file.name}\n정식 배포를 위해 Step 2에 경로를 입력하는 것을 권장합니다.`);
+    }
 
-    // 6. 드래그 앤 드롭 및 파일 처리
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
-
-    ['dragleave', 'dragend'].forEach(type => {
-        dropZone.addEventListener(type, () => dropZone.classList.remove('dragover'));
-    });
-
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type === 'video/mp4') {
-            handleFile(e.dataTransfer.files[0]);
-        }
+        if (e.dataTransfer.files[0].type === 'video/mp4') handleFile(e.dataTransfer.files[0]);
     });
-
     dropZone.addEventListener('click', () => videoUpload.click());
-    videoUpload.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) handleFile(e.target.files[0]);
-    });
+    videoUpload.addEventListener('change', (e) => { if(e.target.files[0]) handleFile(e.target.files[0]); });
 
-    function handleFile(file) {
-        fileNameDisplay.textContent = `Selected: ${file.name}`;
-        currentVideoURL = URL.createObjectURL(file);
-    }
-
-    // 7. 프로젝트 추가
+    // 추가 버튼
     addProjectBtn.addEventListener('click', () => {
-        if (!currentVideoURL && !editPrompt.value) return;
+        const finalVideoSrc = editVideoPath.value || currentVideoURL;
+        if (!finalVideoSrc) {
+            alert('영상 파일 또는 경로를 입력해주세요!');
+            return;
+        }
 
-        const tags = editTags.value ? editTags.value.split(',').map(t => t.trim()).filter(t => t !== "") : [];
         const newItem = {
             id: Date.now(),
             prompt: editPrompt.value || "No prompt",
-            videoSrc: currentVideoURL || "",
-            tags: tags
+            videoSrc: finalVideoSrc,
+            tags: editTags.value ? editTags.value.split(',').map(t => t.trim()) : []
         };
 
         archiveData.unshift(newItem);
@@ -167,25 +158,31 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('panel-open');
     });
 
-    function deleteItem(id) {
-        if (confirm('삭제하시겠습니까?')) {
-            archiveData = archiveData.filter(item => item.id !== id);
-            saveAndRefresh();
-        }
-    }
+    // 데이터 내보내기 (Export)
+    exportBtn.addEventListener('click', () => {
+        const dataStr = JSON.stringify(archiveData, null, 2);
+        navigator.clipboard.writeText(dataStr).then(() => {
+            alert('아카이브 데이터가 복사되었습니다!\n이 내용을 저(Gemini)에게 전달해주시면 모두가 볼 수 있게 사이트에 고정해 드립니다.');
+        });
+    });
 
     function saveAndRefresh() {
-        localStorage.setItem('anyway_archive_v5', JSON.stringify(archiveData));
+        localStorage.setItem('anyway_archive_shared_v1', JSON.stringify(archiveData));
         updateUI();
     }
 
     function resetForm() {
         editPrompt.value = '';
         editTags.value = '';
-        videoUpload.value = '';
-        fileNameDisplay.textContent = 'No file chosen';
+        editVideoPath.value = '';
         currentVideoURL = null;
     }
+
+    sizeSlider.addEventListener('input', () => {
+        document.querySelectorAll('.video-item').forEach(card => {
+            card.style.width = `${sizeSlider.value * 1.8}px`;
+        });
+    });
 
     adminToggle.addEventListener('click', () => document.body.classList.add('panel-open'));
     closePanel.addEventListener('click', () => document.body.classList.remove('panel-open'));
