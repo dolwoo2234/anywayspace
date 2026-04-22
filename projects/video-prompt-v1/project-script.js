@@ -24,10 +24,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const OFFICIAL_DATA = [
         {
+            "id": 1776845130700,
+            "prompt": "Woman with tired eyes and completely unchanged facial expression, mouth moving as she talks, body bouncing and rocking up and down vigorously, breasts shaking heavily up and down with large natural motion, hair whipping and swaying wildly, both arms stretched forward toward viewer, static shot\n\n",
+            "videoSrc": "assets/#34-2_BB_아헤가오_추가생성 (2).mp4",
+            "tags": [
+                "ahegao",
+                "아헤가오"
+            ]
+        },
+        {
             "id": 1776833345917,
             "prompt": "A man having sex in the missionary position lifts his hand from the woman’s leg, gathers his strength, and slaps her bottom hard once. The man lifts his hand from her thigh, raising it high to his left, then swings his arm naturally downwards, striking her buttocks with force. The man raises his arm, swings it widely and brings it down, striking the woman on the buttocks. The woman's expression changed instantly from the punch's recoil. The recoil causes her body to flinch and shrink back.",
             "videoSrc": "assets/spanking_action_01.mp4",
-            "tags": ["spanking"]
+            "tags": [
+                "spanking"
+            ]
         }
     ];
 
