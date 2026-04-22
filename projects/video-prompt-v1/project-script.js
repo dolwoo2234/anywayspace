@@ -1,5 +1,5 @@
 /* 
-    Video Prompt Archive - 수동 관리형 아카이브 로직 (Curator Edition)
+    Video Prompt Archive - 경로 자동 정제 로직 포함
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,11 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const editVideoPath = document.getElementById('edit-video-path');
     const fileNameDisplay = document.getElementById('file-name');
 
-    // ==========================================
-    // [OFFICIAL ARCHIVE DATA]
-    // Gemini가 업데이트하는 공식 데이터 배열입니다.
-    // 누구나 접속했을 때 기본으로 보이는 데이터입니다.
-    // ==========================================
     const OFFICIAL_DATA = [
         {
             "id": 1776833345917,
@@ -49,12 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentVideoURL = null;
     let currentFilter = 'all';
 
-    // 1. 데이터 로드 로직
-    // OFFICIAL_DATA를 기본으로 하고, LocalStorage에 추가된 작업 데이터를 합칩니다.
     const savedLocalData = localStorage.getItem('anyway_local_archive_v1');
     const localData = savedLocalData ? JSON.parse(savedLocalData) : [];
-    
-    // 중복 방지를 위해 공식 데이터와 로컬 데이터를 합침
     archiveData = [...localData, ...OFFICIAL_DATA];
     
     updateUI();
@@ -128,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(confirm('로컬 아카이브에서 삭제하시겠습니까? (공식 데이터는 삭제되지 않습니다)')) {
                     const newLocalData = localData.filter(i => i.id !== item.id);
                     localStorage.setItem('anyway_local_archive_v1', JSON.stringify(newLocalData));
-                    location.reload(); // 단순화를 위해 리로드
+                    location.reload();
                 }
             });
             
@@ -136,7 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 파일 핸들링 (미리보기용)
+    // 경로 정제 함수 (따옴표, @ 등 제거)
+    function sanitizePath(path) {
+        if (!path) return "";
+        // 양 끝의 따옴표, @ 기호, 공백 제거
+        return path.trim().replace(/^["'@]+|["']+$/g, '').trim();
+    }
+
     function handleFile(file) {
         fileNameDisplay.textContent = `Preview: ${file.name}`;
         currentVideoURL = URL.createObjectURL(file);
@@ -152,9 +149,12 @@ document.addEventListener('DOMContentLoaded', () => {
     dropZone.addEventListener('click', () => videoUpload.click());
     videoUpload.addEventListener('change', (e) => { if(e.target.files[0]) handleFile(e.target.files[0]); });
 
-    // 추가 버튼 (로컬에 임시 저장)
+    // 추가 버튼
     addProjectBtn.addEventListener('click', () => {
-        const finalVideoSrc = editVideoPath.value || currentVideoURL;
+        // 입력된 경로를 정제하여 사용
+        const cleanPath = sanitizePath(editVideoPath.value);
+        const finalVideoSrc = cleanPath || currentVideoURL;
+
         if (!finalVideoSrc) {
             alert('영상 파일 또는 GitHub 경로를 입력해주세요!');
             return;
@@ -172,9 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
         location.reload();
     });
 
-    // 데이터 내보내기 (Gemini 전달용)
     exportBtn.addEventListener('click', () => {
-        const dataToExport = archiveData; // 전체 데이터를 내보냄
+        const dataToExport = archiveData;
         const dataStr = JSON.stringify(dataToExport, null, 2);
         navigator.clipboard.writeText(dataStr).then(() => {
             alert('데이터가 클립보드에 복사되었습니다!\n이 내용을 Gemini에게 전달하여 "공식 데이터로 등록해줘"라고 말씀하세요.');
