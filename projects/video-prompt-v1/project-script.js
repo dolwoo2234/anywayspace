@@ -108,37 +108,37 @@ document.addEventListener('DOMContentLoaded', () => {
     function scanFileForPrompt(file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const bytes = new Uint8Array(e.target.result);
-            let binaryString = "";
+            const arrayBuffer = e.target.result;
+            // 2MB 단위로 파일 끝에서 스캔 (성능 최적화)
+            const scanSize = Math.min(arrayBuffer.byteLength, 2 * 1024 * 1024);
+            const footer = arrayBuffer.slice(arrayBuffer.byteLength - scanSize);
+            const decoder = new TextDecoder('utf-8');
+            const text = decoder.decode(footer);
+
+            // ComfyUI Workflow JSON 패턴 찾기
+            const jsonMatch = text.match(/\{"prompt":[\s\S]*?\}/);
             
-            // 바이너리 데이터에서 출력 가능한 문자(ASCII)만 골라내어 스트링화
-            for (let i = 0; i < bytes.length; i++) {
-                if (bytes[i] >= 32 && bytes[i] <= 126) {
-                    binaryString += String.fromCharCode(bytes[i]);
-                } else if (bytes[i] === 10 || bytes[i] === 13) {
-                    binaryString += " "; // 줄바꿈은 공백으로
+            if (jsonMatch) {
+                try {
+                    const workflow = JSON.parse(jsonMatch[0]);
+                    // 추출한 JSON에서 CLIPTextEncode 노드들의 text 값 조합
+                    let promptText = "";
+                    for (const key in workflow.prompt) {
+                        const node = workflow.prompt[key];
+                        if (node.class_type === "CLIPTextEncode" && node.inputs && node.inputs.text) {
+                            promptText += node.inputs.text + " ";
+                        }
+                    }
+                    if (promptText) {
+                        updateDropZoneStatus(true);
+                        return applyCleanPrompt(promptText);
+                    }
+                } catch (e) {
+                    console.error("JSON 파싱 오류:", e);
                 }
             }
 
-            // 1. "Positive Prompt" 노드 타이틀 기반 탐색
-            const marker = "Positive Prompt";
-            const markerIdx = binaryString.indexOf(marker);
-            
-            if (markerIdx !== -1) {
-                // 마커 주변 구역을 잘라내어 "text" 필드 탐색
-                const area = binaryString.substring(markerIdx - 500, markerIdx + 2000);
-                const textMatch = area.match(/"text":\s*"(.*?)(?<!\\)"/);
-                if (textMatch) {
-                    return applyCleanPrompt(textMatch[1]);
-                }
-            }
-
-            // 2. 실패 시 CLIPTextEncode 노드 기반 탐색
-            const nodeMatch = binaryString.match(/"class_type":\s*"CLIPTextEncode".*?"text":\s*"(.*?)(?<!\\)"/);
-            if (nodeMatch) {
-                return applyCleanPrompt(nodeMatch[1]);
-            }
-
+            updateDropZoneStatus(false);
             showStatus("메타데이터를 읽을 수 없습니다. (수동 입력)", "error");
         };
         reader.readAsArrayBuffer(file);
@@ -188,13 +188,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file.type.includes("video") && !file.name.endsWith('.mp4')) return alert("MP4 파일만 가능합니다.");
         const url = URL.createObjectURL(file);
         window.tempVideoURL = url;
-        dropZone.innerHTML = `<video autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover; border-radius:22px;"><source src="${url}" type="video/mp4"></video><div style="position:absolute; inset:0; background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:0.85rem;">FILE LOADED</div>`;
         
-        // 파일명 원본 유지 (assets/ 접두사만 유지)
+        // 초기 UI 상태 설정
+        dropZone.innerHTML = `
+            <video autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover; border-radius:22px;">
+                <source src="${url}" type="video/mp4">
+            </video>
+            <div id="drop-status" style="position:absolute; inset:0; background:rgba(0,0,0,0.3); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:0.9rem;">
+                <span>ANALYZING...</span>
+            </div>`;
+        
         editVideoPath.value = `assets/${file.name}`;
         
-        // 정밀 바이너리 스캔 시작
+        // 메타데이터 스캔 시작
         scanFileForPrompt(file);
+    }
+
+    // 스캔 결과에 따라 UI 업데이트
+    function updateDropZoneStatus(success) {
+        const statusEl = document.getElementById('drop-status');
+        if (!statusEl) return;
+        
+        if (success) {
+            statusEl.innerHTML = '<span>✅ METADATA EXTRACTED</span>';
+            statusEl.style.background = 'rgba(46, 204, 113, 0.4)';
+        } else {
+            statusEl.innerHTML = '<span>⚠️ NO METADATA FOUND</span><button onclick="location.reload()" style="margin-top:10px; cursor:pointer;">Reset</button>';
+            statusEl.style.background = 'rgba(231, 76, 60, 0.4)';
+        }
     }
 
     addProjectBtn.addEventListener('click', () => {
