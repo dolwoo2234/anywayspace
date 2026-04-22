@@ -1,0 +1,159 @@
+/* 
+    Anyway Space - 스타일 시트
+    시니어 UI 디자이너의 관점에서 미니멀하고 세련된 다크 모드 구현
+*/
+
+:root {
+    --bg-main: #000000;         /* 메인 배경색 (순수 블랙) */
+    --bg-sidebar: #111111;      /* 사이드바 배경색 */
+    --text-primary: #FFFFFF;    /* 메인 텍스트 색상 */
+    --text-secondary: #888888;  /* 보조 텍스트 색상 */
+    --accent: #333333;          /* 호버 및 액티브 포인트 */
+    --sidebar-width: 280px;     /* 사이드바 너비 */
+    --transition-speed: 0.3s;   /* 전환 애니메이션 속도 */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    overflow: hidden; /* 전체 페이지 스크롤 방지 */
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* 사이드바 스타일링 */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100%;
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid #222;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.sidebar-header {
+    padding: 40px 30px;
+}
+
+.sidebar-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 0 20px;
+}
+
+.category-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    padding-left: 10px;
+}
+
+.project-list {
+    list-style: none;
+}
+
+.project-item {
+    padding: 12px 15px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    transition: all var(--transition-speed) ease;
+}
+
+.project-item:hover {
+    background-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.project-item.active {
+    background-color: var(--accent);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    padding: 20px 30px;
+    border-top: 1px solid #222;
+}
+
+.sidebar-footer p {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+/* 메인 뷰포트 스타일링 */
+.main-viewport {
+    flex: 1;
+    height: 100%;
+    background-color: var(--bg-main);
+    position: relative;
+    overflow: hidden;
+}
+
+#project-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: var(--bg-main);
+    display: block;
+}
+
+.content-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-main);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition-speed) ease;
+}
+
+.content-overlay.loading {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* 반응형 대응 */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #222;
+    }
+    .sidebar-header {
+        padding: 20px;
+    }
+    .sidebar-content {
+        padding: 10px 20px;
+    }
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anyway Space - Project Archive</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Pretendard 폰트 불러오기 (세련된 타이포그래피) -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+</head>
+<body>
+    <div class="container">
+        <!-- 좌측 사이드바: 네비게이션 및 카테고리 -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>Anyway Space</h1>
+            </div>
+            <div class="sidebar-content">
+                <div class="category">
+                    <h2 class="category-title">Collections</h2>
+                    <ul class="project-list" id="project-list">
+                        <!-- 프로젝트 목록은 script.js에서 동적으로 생성됨 -->
+                        <li class="project-item active" data-url="about:blank">Main Dashboard</li>
+                        <li class="project-item" data-url="https://example.com">Project Alpha</li>
+                        <li class="project-item" data-url="https://example.org">Project Beta</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <p>&copy; 2026 Anyway Space</p>
+            </div>
+        </nav>
+
+        <!-- 메인 컨텐츠 영역: 프로젝트가 표시되는 공간 -->
+        <main class="main-viewport">
+            <!-- 초기 상태는 빈 검은 화면 (iframe으로 프로젝트 로드 가능) -->
+            <div id="content-overlay" class="content-overlay"></div>
+            <iframe id="project-frame" src="about:blank" frameborder="0" allowfullscreen></iframe>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
