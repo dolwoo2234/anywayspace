@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processor - Anyway Space</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body class="image-processor-mode dark-theme">
+    <div class="showcase-container">
+        <header class="main-header">
+            <div class="brand-section">
+                <span class="collection-badge">COLLECTION #03 | v1.0</span>
+                <h1 class="main-title">Batch Image Resizer</h1>
+                <p class="main-subtitle">여러 이미지를 드롭하여 한 번에 1024px(Long) & 576px(Crop)으로 변환합니다.</p>
+            </div>
+            
+            <div class="control-center">
+                <div class="action-group">
+                    <button id="download-all" class="primary-action-btn" disabled>
+                        <span class="plus-icon">↓</span> Download All
+                    </button>
+                    <button id="clear-all" class="icon-button" title="Clear All">
+                        <span class="trash-icon">🗑</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main id="drop-zone" class="premium-drop-zone full-width">
+            <div class="drop-content">
+                <span class="drop-icon">🖼️</span>
+                <p>Drop images here or click to upload</p>
+                <p class="hint">Images will be resized to 1024px (long side) and cropped to 576px height.</p>
+                <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
+            </div>
+        </main>
+
+        <div id="image-grid" class="modern-grid">
+            <!-- Processed images will appear here -->
+        </div>
+    </div>
+
+    <!-- Template for processed image card -->
+    <template id="image-item-template">
+        <div class="archive-card">
+            <div class="card-media">
+                <img src="" class="processed-image">
+                <div class="status-overlay">PROCESSED</div>
+            </div>
+            <div class="card-data">
+                <div class="card-info">
+                    <span class="filename-badge">filename.png</span>
+                    <span class="size-badge">1024 x 576</span>
+                </div>
+                <button class="download-action" title="Download Image">Download</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="project-script.js"></script>
+</body>
+</html>
