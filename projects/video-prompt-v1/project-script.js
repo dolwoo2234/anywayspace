@@ -25,11 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const OFFICIAL_DATA = [
         {
             "id": 1776845130700,
-            "prompt": "Woman with tired eyes and completely unchanged facial expression, mouth moving as she talks, body bouncing and rocking up and down vigorously, breasts shaking heavily up and down with large natural motion, hair whipping and swaying wildly, both arms stretched forward toward viewer, static shot\n\n",
-            "videoSrc": "assets/#34-2_BB_아헤가오_추가생성 (2).mp4",
+            "prompt": "Woman with tired eyes and completely unchanged facial expression, mouth moving as she talks, body bouncing and rocking up and down vigorously, breasts shaking heavily up and down with large natural motion, hair whipping and swaying wildly, both arms stretched forward toward viewer, static shot",
+            "videoSrc": "assets/ahegao_v1.mp4",
             "tags": [
-                "ahegao",
-                "아헤가오"
+                "ahegao"
             ]
         },
         {
