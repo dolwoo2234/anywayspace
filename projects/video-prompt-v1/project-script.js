@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             "id": 1776833345917,
             "prompt": "A man having sex in the missionary position lifts his hand from the woman’s leg, gathers his strength, and slaps her bottom hard once.\nThe man lifts his hand from her thigh, raising it high to his left, then swings his arm naturally downwards, striking her buttocks with force.\n\nThe man raises his arm, swings it widely and brings it down, striking the woman on the buttocks.",
-            "videoSrc": "assets/spanking_01.mp4",
+            "videoSrc": "assets/#29_AC_스팽킹_2초 (1).mp4",
             "tags": [
                 "spanking"
             ]

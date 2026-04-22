@@ -156,10 +156,8 @@ body {
     color: #efefef;
     font-style: italic;
     word-break: break-all;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    /* 줄 수 제한 제거 */
+    display: block; 
 }
 
 /* 매니지먼트 패널 (복구 및 강화) */
