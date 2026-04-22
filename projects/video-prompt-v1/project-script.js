@@ -1,6 +1,6 @@
 /* 
-    Prompt Archive - 마스터 로직 (v15)
-    [심플 버전] 메타데이터 추출 제거 및 파일 교체 기능 강화
+    Prompt Archive - 마스터 로직 (v16)
+    [복구 버전] New Entry 버튼 활성화 및 불필요한 참조 제거
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportBtn = document.getElementById('export-data');
     
     const dropZone = document.getElementById('drop-zone');
-    const videoUpload = document.getElementById('video-upload');
     const editPrompt = document.getElementById('edit-prompt');
     const editTags = document.getElementById('edit-tags');
     const editVideoPath = document.getElementById('edit-video-path');
@@ -40,12 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const isLight = document.body.classList.contains('light-theme');
         themeToggle.innerHTML = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
     };
+
     themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('light-theme');
         document.body.classList.toggle('dark-theme');
         localStorage.setItem('anyway_theme_v8', document.body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme');
         updateThemeUI();
     });
+
     const savedTheme = localStorage.getItem('anyway_theme_v8') || 'dark-theme';
     document.body.className = `archive-mode ${savedTheme}`;
     updateThemeUI();
@@ -120,29 +121,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 드래그 앤 드롭
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-    });
-
-    // 클릭하여 업로드
-    videoUpload.addEventListener('change', (e) => {
-        if (e.target.files[0]) handleFile(e.target.files[0]);
-    });
+    if (dropZone) {
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+        });
+    }
 
     function handleFile(file) {
         if (!file.type.includes("video") && !file.name.endsWith('.mp4')) return alert("MP4 파일만 가능합니다.");
-        
-        // 기존 영상 URL 해제 (메모리 관리)
         if (window.tempVideoURL) URL.revokeObjectURL(window.tempVideoURL);
-        
         const url = URL.createObjectURL(file);
         window.tempVideoURL = url;
         
-        // UI 즉시 업데이트 (교체 가능하도록)
         dropZone.innerHTML = `
             <video autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover; border-radius:22px;">
                 <source src="${url}" type="video/mp4">
@@ -154,30 +148,49 @@ document.addEventListener('DOMContentLoaded', () => {
         showStatus("🎥 Video loaded successfully!", "success");
     }
 
-    addProjectBtn.addEventListener('click', () => {
-        const finalVideoSrc = sanitizeInputPath(editVideoPath.value) || window.tempVideoURL;
-        if (!finalVideoSrc) return alert('영상 파일이나 경로를 지정해주세요.');
-        const newItem = {
-            id: Date.now(),
-            prompt: editPrompt.value || "No description",
-            videoSrc: finalVideoSrc,
-            tags: editTags.value ? editTags.value.split(',').map(t => t.trim()) : []
-        };
-        localData.unshift(newItem);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
-        location.reload();
-    });
+    if (addProjectBtn) {
+        addProjectBtn.addEventListener('click', () => {
+            const finalVideoSrc = sanitizeInputPath(editVideoPath.value) || window.tempVideoURL;
+            if (!finalVideoSrc) return alert('영상 파일이나 경로를 지정해주세요.');
+            const newItem = {
+                id: Date.now(),
+                prompt: editPrompt.value || "No description",
+                videoSrc: finalVideoSrc,
+                tags: editTags.value ? editTags.value.split(',').map(t => t.trim()) : []
+            };
+            localData.unshift(newItem);
+            archiveData = [...localData, ...OFFICIAL_DATA]; // 업데이트된 archiveData 반영
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
+            
+            // 새로고침 대신 UI 업데이트 및 패널 닫기
+            document.body.classList.remove('panel-open');
+            updateUI();
+            showStatus("✨ 아카이브에 추가되었습니다!", "success");
+        });
+    }
 
-    sizeSlider.addEventListener('input', () => {
-        document.querySelectorAll('.archive-card').forEach(card => card.style.width = `${sizeSlider.value * 2}px`);
-    });
+    if (sizeSlider) {
+        sizeSlider.addEventListener('input', () => {
+            document.querySelectorAll('.archive-card').forEach(card => card.style.width = `${sizeSlider.value * 2}px`);
+        });
+    }
 
-    exportBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(JSON.stringify(archiveData, null, 2)).then(() => alert('데이터가 복사되었습니다.'));
-    });
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(JSON.stringify(archiveData, null, 2)).then(() => alert('데이터가 복사되었습니다.'));
+        });
+    }
 
-    adminToggle.addEventListener('click', () => document.body.classList.add('panel-open'));
-    closePanel.addEventListener('click', () => document.body.classList.remove('panel-open'));
+    if (adminToggle) {
+        adminToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.toggle('panel-open');
+        });
+    }
+    
+    if (closePanel) {
+        closePanel.addEventListener('click', () => document.body.classList.remove('panel-open'));
+    }
 
     updateUI();
 });
