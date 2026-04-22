@@ -1,6 +1,6 @@
 /* 
-    Prompt Archive - 마스터 로직 (v8)
-    테마 복구 + 경로 정제 강화 + 한글 대응
+    Prompt Archive - 마스터 로직 (v10)
+    드롭 존 실시간 미리보기 및 인터랙션 강화
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,13 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const editTags = document.getElementById('edit-tags');
     const editVideoPath = document.getElementById('edit-video-path');
 
-    const LOCAL_STORAGE_KEY = 'anyway_archive_v8';
+    const LOCAL_STORAGE_KEY = 'anyway_archive_v8'; 
 
-    // 공식 데이터
     const OFFICIAL_DATA = [
         {
             "id": 1776833345917,
-            "prompt": "A man having sex in the missionary position lifts his hand from the woman’s leg, gathers his strength, and slaps her bottom hard once.\nThe man lifts his hand from her thigh, raising it high to his left, then swings his arm naturally downwards, striking her buttocks with force.\n\nThe man raises his arm, swings it widely and brings it down, striking the woman on the buttocks.",
+            "prompt": "A man having sex in the missionary position lifts his hand from the woman’s leg, gathers his strength, and slaps her bottom hard once. The man lifts his hand from her thigh, raising it high to his left, then swings his arm naturally downwards, striking her buttocks with force. The man raises his arm, swings it widely and brings it down, striking the woman on the buttocks. The woman's expression changed instantly from the punch's recoil. The recoil causes her body to flinch and shrink back.",
             "videoSrc": "assets/spanking_action_01.mp4",
             "tags": ["spanking"]
         }
@@ -37,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let archiveData = [...localData, ...OFFICIAL_DATA];
     let currentFilter = 'all';
 
-    // 1. 테마 로직 복구 및 확장
     const updateThemeUI = () => {
         const isLight = document.body.classList.contains('light-theme');
         themeToggle.innerHTML = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
@@ -46,12 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('light-theme');
         document.body.classList.toggle('dark-theme');
-        const currentTheme = document.body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme';
-        localStorage.setItem('anyway_theme_v8', currentTheme);
+        localStorage.setItem('anyway_theme_v8', document.body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme');
         updateThemeUI();
     });
 
-    // 저장된 테마 불러오기
     const savedTheme = localStorage.getItem('anyway_theme_v8') || 'dark-theme';
     document.body.className = `archive-mode ${savedTheme}`;
     updateThemeUI();
@@ -89,8 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const delBtn = clone.querySelector('.delete-action');
 
             card.style.width = `${sizeSlider.value * 2}px`;
-            
-            // 한글 및 특수문자 경로 안전하게 처리
             video.src = encodeURI(item.videoSrc);
             prompt.innerText = item.prompt;
 
@@ -110,36 +104,58 @@ document.addEventListener('DOMContentLoaded', () => {
                         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
                         location.reload();
                     }
-                } else {
-                    alert('공식 데이터는 관리자만 삭제할 수 있습니다.');
                 }
             });
             videoGrid.appendChild(clone);
         });
     }
 
-    // 경로 정제 함수 강화 (한글/공백/특수문자 대응)
     function sanitizePath(path) {
         if (!path) return "";
-        // 1. 앞뒤 따옴표, @, 공백 제거
         let clean = path.trim().replace(/^["'@]+|["']+$/g, '').trim();
-        // 2. 역슬래시를 슬래시로 변환
         clean = clean.replace(/\\/g, '/');
-        // 3. 로컬 프로젝트 경로가 포함된 경우 상대 경로로 변환 시도
         if (clean.includes('anyway-space/projects/video-prompt-v1/')) {
             clean = clean.split('anyway-space/projects/video-prompt-v1/')[1];
         }
         return clean;
     }
 
-    // 사이즈 조절 연동
-    sizeSlider.addEventListener('input', () => {
-        document.querySelectorAll('.archive-card').forEach(card => {
-            card.style.width = `${sizeSlider.value * 2}px`;
-        });
-    });
+    // [MP4 메타데이터 스캔 로직]
+    function scanFileForPrompt(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = new TextDecoder().decode(e.target.result);
+            const marker = '"title": "CLIP Text Encode (Positive Prompt)"';
+            const index = text.indexOf(marker);
+            
+            if (index !== -1) {
+                const slice = text.substring(index - 500, index + 500);
+                const textMatch = slice.match(/"text":\s*"(.*?)"/s);
+                if (textMatch) {
+                    applyCleanPrompt(textMatch[1]);
+                    return;
+                }
+            }
+            const backupMatch = text.match(/"class_type":\s*"CLIPTextEncode".*?"text":\s*"(.*?)"/s);
+            if (backupMatch) {
+                applyCleanPrompt(backupMatch[1]);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
 
-    // 드래그 앤 드롭
+    function applyCleanPrompt(text) {
+        const clean = text.replace(/\\n/g, ' ').replace(/\n/g, ' ').replace(/\s\s+/g, ' ').trim();
+        editPrompt.value = clean;
+        editPrompt.style.borderColor = "var(--accent)";
+        setTimeout(() => editPrompt.style.borderColor = "", 1500);
+        
+        if (!editTags.value) {
+            const firstWord = clean.split(' ')[0].replace(/[^a-zA-Z]/g, '');
+            if (firstWord && firstWord.length > 2) editTags.value = firstWord;
+        }
+    }
+
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
     dropZone.addEventListener('drop', (e) => {
@@ -147,33 +163,46 @@ document.addEventListener('DOMContentLoaded', () => {
         dropZone.classList.remove('dragover');
         if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
     });
-    
+
     function handleFile(file) {
-        window.tempVideoURL = URL.createObjectURL(file);
-        alert(`미리보기가 준비되었습니다: ${file.name}`);
+        if (!file.type.includes("video") && !file.name.endsWith('.mp4')) return alert("MP4 영상 파일만 지원합니다.");
+
+        const url = URL.createObjectURL(file);
+        window.tempVideoURL = url;
+
+        dropZone.innerHTML = `
+            <video autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover; border-radius:18px;">
+                <source src="${url}" type="video/mp4">
+            </video>
+            <div style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.6); padding:4px 8px; border-radius:6px; font-size:0.6rem; color:var(--accent);">PREVIEW LOADED</div>
+        `;
+
+        editVideoPath.value = `assets/${file.name}`;
+        scanFileForPrompt(file);
     }
 
     addProjectBtn.addEventListener('click', () => {
-        const cleanPath = sanitizePath(editVideoPath.value);
-        const finalVideoSrc = cleanPath || window.tempVideoURL;
-        if (!finalVideoSrc) return alert('영상 파일이나 유효한 경로를 입력해주세요.');
+        const finalVideoSrc = sanitizePath(editVideoPath.value) || window.tempVideoURL;
+        if (!finalVideoSrc) return alert('영상 또는 경로를 지정해주세요.');
 
         const newItem = {
             id: Date.now(),
-            prompt: editPrompt.value || "No prompt description",
+            prompt: editPrompt.value || "No prompt",
             videoSrc: finalVideoSrc,
             tags: editTags.value ? editTags.value.split(',').map(t => t.trim()) : []
         };
 
         localData.unshift(newItem);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
-        alert('아카이브에 성공적으로 추가되었습니다!');
         location.reload();
     });
 
+    sizeSlider.addEventListener('input', () => {
+        document.querySelectorAll('.archive-card').forEach(card => card.style.width = `${sizeSlider.value * 2}px`);
+    });
+
     exportBtn.addEventListener('click', () => {
-        const dataStr = JSON.stringify(archiveData, null, 2);
-        navigator.clipboard.writeText(dataStr).then(() => alert('공유용 데이터 코드가 클립보드에 복사되었습니다!'));
+        navigator.clipboard.writeText(JSON.stringify(archiveData, null, 2)).then(() => alert('Sync Code Copied!'));
     });
 
     adminToggle.addEventListener('click', () => document.body.classList.add('panel-open'));
