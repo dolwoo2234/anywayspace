@@ -22,7 +22,7 @@
                     <label>View Size</label>
                     <input type="range" id="size-slider" min="280" max="800" value="400">
                 </div>
-                <button id="admin-toggle" class="btn-admin">+ Add New Set</button>
+                <button id="admin-toggle" class="btn-admin">+ Add New Project</button>
             </div>
         </header>
 
@@ -30,30 +30,35 @@
         <nav class="filter-bar">
             <div id="tag-cloud" class="tag-cloud">
                 <button class="tag-chip active" data-tag="all">All Works</button>
-                <!-- 동적으로 태그가 추가됨 -->
             </div>
         </nav>
 
-        <!-- 메인 콘텐츠: 영상 그리드 리스트 -->
+        <!-- 메인 콘텐츠 -->
         <main id="video-grid" class="video-grid">
-            <!-- script.js에서 동적으로 렌더링됨 -->
+            <!-- 동적 렌더링 -->
         </main>
 
-        <!-- 매니지먼트 패널 -->
+        <!-- 매니지먼트 패널 (드래그 앤 드롭 추가) -->
         <aside id="admin-panel" class="admin-panel">
             <div class="panel-header">
                 <h3>Add New Project</h3>
                 <button id="close-panel" class="btn-close">&times;</button>
             </div>
             <div class="panel-body">
+                <!-- 드래그 앤 드롭 업로드 영역 -->
                 <div class="input-group">
                     <label>Video Upload (.mp4)</label>
-                    <div class="file-upload-wrapper">
+                    <div id="drop-zone" class="drop-zone">
+                        <div class="drop-zone-content">
+                            <span class="drop-icon">🎬</span>
+                            <p class="drop-text">Drag & Drop video here</p>
+                            <p class="drop-subtext">or click to browse</p>
+                        </div>
                         <input type="file" id="video-upload" accept="video/mp4" hidden>
-                        <button class="btn-secondary" onclick="document.getElementById('video-upload').click()">Choose File</button>
-                        <span id="file-name" class="file-name">No file chosen</span>
                     </div>
+                    <span id="file-name" class="file-name">No file chosen</span>
                 </div>
+
                 <div class="input-group">
                     <label>Tags (Comma separated)</label>
                     <input type="text" id="edit-tags" placeholder="e.g. Cyberpunk, Neon, Rain">

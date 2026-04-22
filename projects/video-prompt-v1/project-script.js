@@ -1,5 +1,5 @@
 /* 
-    Video Prompt Archive - 태그 필터링 로직
+    Video Prompt Archive - 드래그 앤 드롭 및 데이터 로직 개선
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closePanel = document.getElementById('close-panel');
     const addProjectBtn = document.getElementById('add-project');
     
+    const dropZone = document.getElementById('drop-zone');
     const videoUpload = document.getElementById('video-upload');
     const editPrompt = document.getElementById('edit-prompt');
     const editTags = document.getElementById('edit-tags');
@@ -21,18 +22,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentVideoURL = null;
     let currentFilter = 'all';
 
-    // 1. 초기 데이터 로드
-    const savedData = localStorage.getItem('anyway_archive_v2');
+    // 1. 초기 데이터 로드 (버전 관리로 깔끔한 시작 보장)
+    const savedData = localStorage.getItem('anyway_archive_v4');
     if (savedData) {
         archiveData = JSON.parse(savedData);
     } else {
-        archiveData = [
-            { id: 1, prompt: "Cyberpunk rain walk in neon city", videoSrc: "assets/video.mp4", tags: ["Cyberpunk", "Neon", "Rain"] }
-        ];
+        archiveData = [];
     }
     updateUI();
 
-    // 2. 전체 UI 업데이트 (그리드 + 태그 클라우드)
+    // 2. 전체 UI 업데이트
     function updateUI() {
         renderTagCloud();
         renderGrid();
@@ -60,18 +59,22 @@ document.addEventListener('DOMContentLoaded', () => {
             tagCloud.appendChild(btn);
         });
 
-        // "All Works" 버튼 클릭 이벤트 재설정
         tagCloud.querySelector('[data-tag="all"]').addEventListener('click', () => {
             currentFilter = 'all';
             updateUI();
         });
     }
 
-    // 4. 그리드 렌더링 (필터링 적용)
+    // 4. 그리드 렌더링
     function renderGrid() {
         videoGrid.innerHTML = '';
-        const cardSize = sizeSlider.value;
+        
+        if (archiveData.length === 0) {
+            videoGrid.innerHTML = `<div style="padding: 100px; color: #444; font-size: 1.1rem; text-align: center; width: 100%; font-weight: 500;">아카이브가 비어 있습니다.<br><span style="color: #666; font-size: 0.9rem;">상단의 '+ Add New Project'를 눌러 시작하세요.</span></div>`;
+            return;
+        }
 
+        const cardSize = sizeSlider.value;
         const filteredData = currentFilter === 'all' 
             ? archiveData 
             : archiveData.filter(item => item.tags && item.tags.includes(currentFilter));
@@ -106,19 +109,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. 사이즈 조절
-    sizeSlider.addEventListener('input', () => {
-        const cards = document.querySelectorAll('.video-item');
-        cards.forEach(card => card.style.width = `${sizeSlider.value}px`);
+    // 5. 드래그 앤 드롭 로직
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
     });
+
+    ['dragleave', 'dragend'].forEach(type => {
+        dropZone.addEventListener(type, () => {
+            dropZone.classList.remove('dragover');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type === 'video/mp4') {
+            handleFile(files[0]);
+        } else {
+            alert('MP4 파일만 업로드 가능합니다.');
+        }
+    });
+
+    dropZone.addEventListener('click', () => videoUpload.click());
+
+    videoUpload.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+        fileNameDisplay.textContent = `Selected: ${file.name}`;
+        currentVideoURL = URL.createObjectURL(file);
+    }
 
     // 6. 새로운 세트 추가
     addProjectBtn.addEventListener('click', () => {
-        const tags = editTags.value ? editTags.value.split(',').map(t => t.trim()) : [];
+        if (!currentVideoURL && !editPrompt.value) {
+            alert('영상 파일과 프롬프트를 입력해주세요.');
+            return;
+        }
+
+        const tags = editTags.value ? editTags.value.split(',').map(t => t.trim()).filter(t => t !== "") : [];
         const newItem = {
             id: Date.now(),
             prompt: editPrompt.value || "No prompt",
-            videoSrc: currentVideoURL || "assets/video.mp4",
+            videoSrc: currentVideoURL || "",
             tags: tags
         };
 
@@ -136,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveAndRefresh() {
-        localStorage.setItem('anyway_archive_v2', JSON.stringify(archiveData));
+        localStorage.setItem('anyway_archive_v4', JSON.stringify(archiveData));
         updateUI();
     }
 
@@ -148,13 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentVideoURL = null;
     }
 
-    // 공통 이벤트
-    videoUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            fileNameDisplay.textContent = file.name;
-            currentVideoURL = URL.createObjectURL(file);
-        }
+    // 사이즈 조절
+    sizeSlider.addEventListener('input', () => {
+        const cards = document.querySelectorAll('.video-item');
+        cards.forEach(card => card.style.width = `${sizeSlider.value}px`);
     });
 
     adminToggle.addEventListener('click', () => document.body.classList.add('panel-open'));
