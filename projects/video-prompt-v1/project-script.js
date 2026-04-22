@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sizeSlider = document.getElementById('size-slider');
     const tagCloud = document.getElementById('tag-cloud');
     const template = document.getElementById('video-item-template');
-    const themeToggle = document.getElementById('theme-toggle');
     
     const adminToggle = document.getElementById('admin-toggle');
     const closePanel = document.getElementById('close-panel');
