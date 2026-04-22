@@ -3,96 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Prompt Archive - Anyway Space</title>
+    <title>Prompt Archive - Anyway Space</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 </head>
-<body class="archive-mode dark-theme"> <!-- 기본 테마는 다크 -->
+<body class="archive-mode dark-theme">
     <div class="showcase-container">
-        <!-- 상단 헤더 -->
-        <header class="header">
-            <div class="header-left">
-                <span class="badge">Collection #01</span>
-                <h1>Video AI Archive</h1>
-                <p class="subtitle">큐레이터가 엄선한 영상 프롬프트 아카이브입니다.</p>
+        <!-- 리뉴얼된 헤더 -->
+        <header class="main-header">
+            <div class="brand-section">
+                <span class="collection-badge">COLLECTION #01</span>
+                <h1 class="main-title">Prompt Archive</h1>
+                <p class="main-subtitle">Curated video-prompt synergy for high-end creators.</p>
             </div>
             
-            <div class="header-controls">
-                <!-- 테마 토글 버튼 추가 -->
-                <button id="theme-toggle" class="btn-theme" title="Toggle Theme">🌓 Theme</button>
-                
-                <div class="size-controller">
-                    <label>View Size</label>
-                    <input type="range" id="size-slider" min="280" max="600" value="400">
+            <div class="control-center">
+                <div class="control-group">
+                    <label class="control-label">GRID SIZE</label>
+                    <input type="range" id="size-slider" min="280" max="600" value="420">
                 </div>
-                <button id="admin-toggle" class="btn-admin">+ Add New Project</button>
+                <div class="action-group">
+                    <button id="theme-toggle" class="icon-button" title="Toggle Theme">
+                        <span class="theme-icon"></span>
+                    </button>
+                    <button id="admin-toggle" class="primary-action-btn">
+                        <span class="plus-icon">+</span> New Entry
+                    </button>
+                </div>
             </div>
         </header>
 
-        <!-- 태그 필터 바 -->
-        <nav class="filter-bar">
-            <div id="tag-cloud" class="tag-cloud">
-                <button class="tag-chip active" data-tag="all">All Works</button>
+        <!-- 필터 바 -->
+        <nav class="filter-nav">
+            <div id="tag-cloud" class="tag-flex">
+                <button class="tag-pill active" data-tag="all">Everything</button>
             </div>
         </nav>
 
-        <!-- 메인 콘텐츠 -->
-        <main id="video-grid" class="video-grid">
-            <!-- 데이터가 로드되면 여기에 나타납니다 -->
+        <!-- 메인 아카이브 그리드 -->
+        <main id="video-grid" class="modern-grid">
+            <!-- 동적 로드 -->
         </main>
 
-        <!-- 매니지먼트 패널 -->
-        <aside id="admin-panel" class="admin-panel">
-            <div class="panel-header">
-                <h3>Curator Settings</h3>
-                <button id="close-panel" class="btn-close">&times;</button>
-            </div>
-            <div class="panel-body">
-                <div class="input-group">
-                    <label>Step 1. Local Preview (MP4)</label>
-                    <div id="drop-zone" class="drop-zone">
-                        <div class="drop-zone-content">
+        <!-- 사이드 매니지먼트 패널 -->
+        <aside id="admin-panel" class="curator-drawer">
+            <div class="panel-inner">
+                <header class="drawer-header">
+                    <h2>Management</h2>
+                    <button id="close-panel" class="close-btn">&times;</button>
+                </header>
+                
+                <div class="drawer-content">
+                    <div class="form-section">
+                        <label>PREVIEW UPLOAD</label>
+                        <div id="drop-zone" class="premium-drop-zone">
                             <span class="drop-icon">🎬</span>
-                            <p class="drop-text">Drag & Drop for Preview</p>
+                            <p>Drop to Preview</p>
                         </div>
-                        <input type="file" id="video-upload" accept="video/mp4" hidden>
                     </div>
-                </div>
 
-                <div class="input-group">
-                    <label>Step 2. GitHub Asset Path (Required for Save)</label>
-                    <input type="text" id="edit-video-path" placeholder="e.g. assets/dance.mp4">
-                    <p class="input-hint">GitHub `assets` 폴더에 올린 파일 경로를 적으세요.</p>
-                </div>
+                    <div class="form-section">
+                        <label>ASSET PATH</label>
+                        <input type="text" id="edit-video-path" placeholder="e.g. assets/motion_01.mp4">
+                    </div>
 
-                <div class="input-group">
-                    <label>Step 3. Details</label>
-                    <input type="text" id="edit-tags" placeholder="Tags (Comma separated)">
-                    <textarea id="edit-prompt" placeholder="Enter Prompt here..."></textarea>
-                </div>
+                    <div class="form-section">
+                        <label>CLASSIFICATION</label>
+                        <input type="text" id="edit-tags" placeholder="Action, Character, Cinematic...">
+                    </div>
 
-                <button id="add-project" class="btn-primary">Add to Local Archive</button>
+                    <div class="form-section">
+                        <label>PROMPT SCRIPT</label>
+                        <textarea id="edit-prompt" placeholder="Write your prompt logic here..."></textarea>
+                    </div>
 
-                <div class="export-section" style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-                    <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 12px; font-weight: 700;">DATA SYNC & DEPLOY</label>
-                    <button id="export-data" class="btn-secondary" style="width: 100%; padding: 12px; font-weight: 700;">Copy All Data for GitHub Deploy</button>
+                    <button id="add-project" class="submit-btn">Register Project</button>
+
+                    <div class="sync-footer">
+                        <button id="export-data" class="sync-btn">Generate Sync Code</button>
+                        <p>Share this code to update the official archive.</p>
+                    </div>
                 </div>
             </div>
         </aside>
     </div>
 
+    <!-- 템플릿 -->
     <template id="video-item-template">
-        <div class="video-item">
-            <div class="video-wrapper">
+        <div class="archive-card">
+            <div class="card-media">
                 <video class="prompt-video" autoplay muted loop playsinline></video>
-                <div class="video-status">LOOPING</div>
+                <div class="status-overlay">LIVE</div>
             </div>
-            <div class="prompt-info">
-                <div class="item-tags"></div>
-                <div class="prompt-box">
+            <div class="card-data">
+                <div class="card-tags"></div>
+                <div class="card-prompt-wrapper">
                     <p class="display-prompt"></p>
                 </div>
-                <button class="btn-delete" title="Delete">&times;</button>
+                <button class="delete-action" title="Remove">&times;</button>
             </div>
         </div>
     </template>

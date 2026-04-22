@@ -1,152 +1,192 @@
 /* 
-    Anyway Space - 테마 시스템 및 리스트 레이아웃 통합 스타일
+    Anyway Space - Prompt Archive 
+    High-End UI Renewal 
 */
 
 :root {
-    /* 다크 테마 변수 */
-    --bg-dark: #050505;
-    --card-bg: #111111;
-    --panel-bg: rgba(15, 15, 15, 0.98);
-    --accent-color: #3d8bff;
-    --action-green: #b5ff45;
-    --action-green-hover: #98e62d;
+    --bg-base: #000000;
+    --bg-card: #0d0d0d;
+    --bg-accent: #1a1a1a;
     --text-main: #ffffff;
-    --text-muted: #666666;
-    --border-color: #1a1a1a;
+    --text-dim: #777777;
+    --accent: #b5ff45; /* Signature Neon Green */
+    --accent-blue: #3d8bff;
+    --border: rgba(255, 255, 255, 0.08);
     --panel-width: 420px;
+    --radius-lg: 24px;
+    --radius-md: 12px;
 }
 
-/* 라이트 테마 설정 */
 body.light-theme {
-    --bg-dark: #f8f9fa;
-    --card-bg: #ffffff;
-    --panel-bg: rgba(255, 255, 255, 0.98);
-    --accent-color: #007bff;
-    --text-main: #1a1a1a;
-    --text-muted: #888888;
-    --border-color: #e9ecef;
+    --bg-base: #f4f4f7;
+    --bg-card: #ffffff;
+    --bg-accent: #f0f0f3;
+    --text-main: #121212;
+    --text-dim: #999999;
+    --accent: #2ecc71;
+    --border: rgba(0, 0, 0, 0.05);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
 }
 
 body {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-base);
     color: var(--text-main);
     font-family: 'Pretendard', sans-serif;
-    min-height: 100vh;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.4s ease;
+    overflow-x: hidden;
 }
 
 .showcase-container {
-    max-width: 1600px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 40px;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 60px 40px;
 }
 
-/* 헤더 & 테마 버튼 */
-.header {
+/* ==========================================
+   HEADER RENEWAL
+   ========================================== */
+.main-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 30px;
+    margin-bottom: 50px;
 }
 
-.btn-theme {
-    padding: 10px 18px;
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.85rem;
-    margin-right: 15px;
-    transition: all 0.2s;
-}
-
-.btn-theme:hover {
-    background-color: var(--border-color);
-}
-
-.btn-admin {
-    padding: 16px 32px;
-    background-color: var(--action-green);
-    border: none;
-    color: #000;
-    border-radius: 14px;
-    cursor: pointer;
+.collection-badge {
+    font-size: 0.7rem;
     font-weight: 800;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: block;
+}
+
+.main-title {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.main-subtitle {
+    color: var(--text-dim);
     font-size: 1rem;
-    transition: all 0.3s;
-    box-shadow: 0 8px 20px rgba(181, 255, 69, 0.2);
+    font-weight: 400;
 }
 
-/* 태그 필터 바 */
-.filter-bar {
-    margin-bottom: 40px;
-    padding: 20px 0;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.tag-cloud {
+.control-center {
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 40px;
 }
 
-.tag-chip {
-    padding: 10px 22px;
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 100px;
-    color: var(--text-muted);
-    font-size: 0.9rem;
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+}
+
+#size-slider {
+    width: 120px;
+    height: 3px;
+    appearance: none;
+    background: var(--bg-accent);
+    border-radius: 2px;
+    outline: none;
+}
+
+#size-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--text-main);
+    border-radius: 50%;
     cursor: pointer;
+}
+
+.action-group {
+    display: flex;
+    gap: 12px;
+}
+
+.icon-button {
+    width: 54px;
+    height: 54px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s;
 }
 
-.tag-chip.active {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-    color: white;
+.primary-action-btn {
+    padding: 0 28px;
+    height: 54px;
+    background-color: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-/* 아카이브 리스트 레이아웃 */
-.video-grid {
+.primary-action-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(181, 255, 69, 0.2);
+}
+
+/* ==========================================
+   GRID & CARD RENEWAL
+   ========================================== */
+.modern-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 25px;
-    justify-content: center;
+    gap: 30px;
+    justify-content: flex-start;
 }
 
-.video-item {
+.archive-card {
     display: flex;
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
-.video-item:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+.archive-card:hover {
+    transform: scale(1.02);
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.4);
 }
 
-.video-wrapper {
-    width: 40%;
+.card-media {
+    width: 42%;
     aspect-ratio: 16/9;
-    background-color: #000;
-    flex-shrink: 0;
-    border-right: 1px solid var(--border-color);
+    background: #000;
+    position: relative;
+    border-right: 1px solid var(--border);
 }
 
 .prompt-video {
@@ -155,108 +195,156 @@ body {
     object-fit: cover;
 }
 
-.prompt-info {
+.status-overlay {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.card-data {
     flex: 1;
-    padding: 25px;
+    padding: 30px;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
-body.light-theme .prompt-info {
-    background-color: #ffffff;
-}
-body.dark-theme .prompt-info {
-    background-color: #141414;
+.card-tags {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
-.mini-tag {
+.tag-pill {
+    padding: 4px 12px;
+    background: var(--bg-accent);
+    border: 1px solid var(--border);
+    border-radius: 100px;
     font-size: 0.7rem;
-    color: var(--accent-color);
-    background-color: rgba(61, 139, 255, 0.1);
-    padding: 3px 10px;
-    border-radius: 6px;
     font-weight: 700;
-    margin-bottom: 12px;
-    display: inline-block;
+    color: var(--text-dim);
+    transition: all 0.2s;
 }
 
 .display-prompt {
-    font-size: 1.1rem;
-    line-height: 1.5;
+    font-size: 1.15rem;
+    line-height: 1.6;
     color: var(--text-main);
     font-style: italic;
-    word-break: break-all;
-    display: block;
+    opacity: 0.9;
 }
 
-/* 매니지먼트 패널 */
-.admin-panel {
+.delete-action {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.archive-card:hover .delete-action {
+    opacity: 0.5;
+}
+
+/* ==========================================
+   DRAWER RENEWAL
+   ========================================== */
+.curator-drawer {
     position: fixed;
     top: 0;
     right: calc(var(--panel-width) * -1);
     width: var(--panel-width);
     height: 100%;
     background-color: var(--panel-bg);
-    backdrop-filter: blur(20px);
-    border-left: 1px solid var(--border-color);
+    backdrop-filter: blur(30px);
+    border-left: 1px solid var(--border);
     z-index: 1000;
-    transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    padding: 50px 40px;
-    box-shadow: -20px 0 50px rgba(0,0,0,0.2);
-    overflow-y: auto;
+    transition: right 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: -40px 0 100px rgba(0,0,0,0.4);
 }
 
-body.panel-open .admin-panel {
+body.panel-open .curator-drawer {
     right: 0;
 }
 
-.drop-zone {
-    width: 100%;
-    height: 180px;
-    border: 2px dashed var(--border-color);
-    border-radius: 20px;
+.panel-inner {
+    padding: 60px 40px;
+    height: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+}
+
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    background-color: var(--bg-dark);
-    margin-bottom: 15px;
+    margin-bottom: 40px;
 }
 
-.input-hint {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 5px;
+.form-section {
+    margin-bottom: 30px;
 }
 
-.btn-primary {
+.form-section label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    display: block;
+    letter-spacing: 0.05em;
+}
+
+.premium-drop-zone {
     width: 100%;
+    height: 140px;
+    border: 1px dashed var(--border);
+    border-radius: 20px;
+    background: rgba(255,255,255,0.02);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.premium-drop-zone:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: var(--accent);
+}
+
+.form-section input, .form-section textarea {
+    width: 100%;
+    background: var(--bg-accent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
     padding: 18px;
-    background-color: var(--action-green);
+    color: var(--text-main);
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 22px;
+    background: var(--accent);
     color: #000;
     border: none;
-    border-radius: 12px;
-    font-weight: 800;
-    font-size: 1rem;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 1.1rem;
     cursor: pointer;
     margin-top: 20px;
-}
-
-.btn-delete {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(0,0,0,0.3);
-    border: none;
-    color: #fff;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.video-item:hover .btn-delete {
-    opacity: 1;
 }
