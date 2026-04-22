@@ -1,6 +1,6 @@
 /* 
-    Prompt Archive - 마스터 로직 (v14)
-    [결정판] 바이너리 스트링 스캔 방식의 ComfyUI 메타데이터 추출
+    Prompt Archive - 마스터 로직 (v15)
+    [심플 버전] 메타데이터 추출 제거 및 파일 교체 기능 강화
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -102,62 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // [ComfyUI MP4 메타데이터 강제 스캔 로직]
-    // ==========================================
-    function scanFileForPrompt(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const arrayBuffer = e.target.result;
-            // 2MB 단위로 파일 끝에서 스캔 (성능 최적화)
-            const scanSize = Math.min(arrayBuffer.byteLength, 2 * 1024 * 1024);
-            const footer = arrayBuffer.slice(arrayBuffer.byteLength - scanSize);
-            const decoder = new TextDecoder('utf-8');
-            const text = decoder.decode(footer);
-
-            // ComfyUI Workflow JSON 패턴 찾기
-            const jsonMatch = text.match(/\{"prompt":[\s\S]*?\}/);
-            
-            if (jsonMatch) {
-                try {
-                    const workflow = JSON.parse(jsonMatch[0]);
-                    // 추출한 JSON에서 CLIPTextEncode 노드들의 text 값 조합
-                    let promptText = "";
-                    for (const key in workflow.prompt) {
-                        const node = workflow.prompt[key];
-                        if (node.class_type === "CLIPTextEncode" && node.inputs && node.inputs.text) {
-                            promptText += node.inputs.text + " ";
-                        }
-                    }
-                    if (promptText) {
-                        updateDropZoneStatus(true);
-                        return applyCleanPrompt(promptText);
-                    }
-                } catch (e) {
-                    console.error("JSON 파싱 오류:", e);
-                }
-            }
-
-            updateDropZoneStatus(false);
-            showStatus("메타데이터를 읽을 수 없습니다. (수동 입력)", "error");
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
-    function applyCleanPrompt(text) {
-        // 백슬래시 이스케이프 제거 및 깔끔하게 다듬기
-        const clean = text.replace(/\\n/g, ' ').replace(/\\"/g, '"').replace(/\s\s+/g, ' ').trim();
-        editPrompt.value = clean;
-        editPrompt.style.borderColor = "var(--accent)";
-        setTimeout(() => editPrompt.style.borderColor = "", 2000);
-        
-        if (!editTags.value) {
-            const firstWord = clean.split(' ')[0].replace(/[^a-zA-Z]/g, '');
-            if (firstWord && firstWord.length > 2) editTags.value = firstWord;
-        }
-        showStatus("✨ 메타데이터 추출 성공!", "success");
-    }
-
     function showStatus(msg, type) {
         const statusEl = document.createElement('div');
         statusEl.style.cssText = `position:fixed; bottom:30px; left:50%; transform:translateX(-50%); padding:14px 28px; border-radius:16px; background:${type==='success'?'#2ecc71':'#e74c3c'}; color:#fff; z-index:9999; font-weight:800; box-shadow:0 15px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);`;
@@ -184,48 +128,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
     });
 
+    // 클릭하여 업로드
+    videoUpload.addEventListener('change', (e) => {
+        if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+
     function handleFile(file) {
         if (!file.type.includes("video") && !file.name.endsWith('.mp4')) return alert("MP4 파일만 가능합니다.");
+        
+        // 기존 영상 URL 해제 (메모리 관리)
+        if (window.tempVideoURL) URL.revokeObjectURL(window.tempVideoURL);
+        
         const url = URL.createObjectURL(file);
         window.tempVideoURL = url;
         
-        // 초기 UI 상태 설정 (분석 중 표시)
+        // UI 즉시 업데이트 (교체 가능하도록)
         dropZone.innerHTML = `
             <video autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover; border-radius:22px;">
                 <source src="${url}" type="video/mp4">
             </video>
-            <div id="drop-status" style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:1rem; transition: all 0.5s ease; border-radius:22px; pointer-events:none;">
-                <div class="loader-spinner" style="width:30px; height:30px; border:4px solid #fff; border-top-color:transparent; border-radius:50%; animation: spin 1s linear infinite; margin-bottom:10px;"></div>
-                <span>ANALYZING METADATA...</span>
-            </div>
-            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>`;
+            <div style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:#fff; padding:6px 12px; border-radius:10px; font-size:0.75rem; font-weight:800; backdrop-filter:blur(5px);">READY TO SAVE</div>
+        `;
         
         editVideoPath.value = `assets/${file.name}`;
-        
-        // 메타데이터 스캔 시작
-        scanFileForPrompt(file);
-    }
-
-    // 스캔 결과에 따라 UI 업데이트 후 자동 소멸
-    function updateDropZoneStatus(success) {
-        const statusEl = document.getElementById('drop-status');
-        if (!statusEl) return;
-        
-        if (success) {
-            statusEl.innerHTML = '<span style="font-size:2rem;">✅</span><span style="margin-top:10px;">PROMPT EXTRACTED</span>';
-            statusEl.style.background = 'rgba(46, 204, 113, 0.6)';
-        } else {
-            statusEl.innerHTML = '<span style="font-size:2rem;">⚠️</span><span style="margin-top:10px;">NO METADATA</span>';
-            statusEl.style.background = 'rgba(231, 76, 60, 0.6)';
-        }
-
-        // 2초 뒤 오버레이 서서히 제거 (수동 입력을 위해)
-        setTimeout(() => {
-            statusEl.style.opacity = '0';
-            setTimeout(() => {
-                if(statusEl.parentNode === dropZone) statusEl.remove();
-            }, 500);
-        }, 1500);
+        showStatus("🎥 Video loaded successfully!", "success");
     }
 
     addProjectBtn.addEventListener('click', () => {
