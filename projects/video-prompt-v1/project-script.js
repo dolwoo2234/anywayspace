@@ -159,15 +159,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 tags: editTags.value ? editTags.value.split(',').map(t => t.trim()) : []
             };
             localData.unshift(newItem);
-            archiveData = [...localData, ...OFFICIAL_DATA]; // 업데이트된 archiveData 반영
+            archiveData = [...localData, ...OFFICIAL_DATA];
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
-            
-            // 새로고침 대신 UI 업데이트 및 패널 닫기
+
+            // 패널 닫기 및 그리드 즉시 갱신
             document.body.classList.remove('panel-open');
             updateUI();
             showStatus("✨ 아카이브에 추가되었습니다!", "success");
-        });
-    }
+
+            // 입력 초기화
+            editPrompt.value = '';
+            editTags.value = '';
+            editVideoPath.value = '';
+            dropZone.innerHTML = `<span class="drop-icon">🎬</span><p>Drop to Preview</p>`;
+        });    }
 
     if (sizeSlider) {
         sizeSlider.addEventListener('input', () => {
