@@ -1,11 +1,12 @@
 /* 
-    Anyway Space - 프리미엄 아카이브 & 매니지먼트 통합 스타일
-    (1:1 프롬프트 리스트 + 프리미엄 업로드 UI)
+    Anyway Space - 테마 시스템 및 리스트 레이아웃 통합 스타일
 */
 
 :root {
+    /* 다크 테마 변수 */
     --bg-dark: #050505;
     --card-bg: #111111;
+    --panel-bg: rgba(15, 15, 15, 0.98);
     --accent-color: #3d8bff;
     --action-green: #b5ff45;
     --action-green-hover: #98e62d;
@@ -13,6 +14,17 @@
     --text-muted: #666666;
     --border-color: #1a1a1a;
     --panel-width: 420px;
+}
+
+/* 라이트 테마 설정 */
+body.light-theme {
+    --bg-dark: #f8f9fa;
+    --card-bg: #ffffff;
+    --panel-bg: rgba(255, 255, 255, 0.98);
+    --accent-color: #007bff;
+    --text-main: #1a1a1a;
+    --text-muted: #888888;
+    --border-color: #e9ecef;
 }
 
 * {
@@ -26,6 +38,7 @@ body {
     color: var(--text-main);
     font-family: 'Pretendard', sans-serif;
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .showcase-container {
@@ -35,12 +48,29 @@ body {
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 헤더 & 컨트롤러 */
+/* 헤더 & 테마 버튼 */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     margin-bottom: 30px;
+}
+
+.btn-theme {
+    padding: 10px 18px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-right: 15px;
+    transition: all 0.2s;
+}
+
+.btn-theme:hover {
+    background-color: var(--border-color);
 }
 
 .btn-admin {
@@ -52,13 +82,8 @@ body {
     cursor: pointer;
     font-weight: 800;
     font-size: 1rem;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s;
     box-shadow: 0 8px 20px rgba(181, 255, 69, 0.2);
-}
-
-.btn-admin:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 30px rgba(181, 255, 69, 0.4);
 }
 
 /* 태그 필터 바 */
@@ -77,7 +102,7 @@ body {
 
 .tag-chip {
     padding: 10px 22px;
-    background-color: #111;
+    background-color: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 100px;
     color: var(--text-muted);
@@ -92,7 +117,7 @@ body {
     color: white;
 }
 
-/* 아카이브 리스트: 1:1 프롬프트 중심 레이아웃 */
+/* 아카이브 리스트 레이아웃 */
 .video-grid {
     display: flex;
     flex-wrap: wrap;
@@ -106,13 +131,14 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 20px;
     overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 .video-item:hover {
     transform: translateY(-8px);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
 }
 
 .video-wrapper {
@@ -135,45 +161,49 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+body.light-theme .prompt-info {
+    background-color: #ffffff;
+}
+body.dark-theme .prompt-info {
     background-color: #141414;
 }
 
 .mini-tag {
     font-size: 0.7rem;
-    color: var(--action-green);
-    background-color: rgba(181, 255, 69, 0.1);
+    color: var(--accent-color);
+    background-color: rgba(61, 139, 255, 0.1);
     padding: 3px 10px;
     border-radius: 6px;
     font-weight: 700;
     margin-bottom: 12px;
     display: inline-block;
-    width: fit-content;
 }
 
 .display-prompt {
     font-size: 1.1rem;
     line-height: 1.5;
-    color: #efefef;
+    color: var(--text-main);
     font-style: italic;
     word-break: break-all;
-    /* 줄 수 제한 제거 */
-    display: block; 
+    display: block;
 }
 
-/* 매니지먼트 패널 (복구 및 강화) */
+/* 매니지먼트 패널 */
 .admin-panel {
     position: fixed;
     top: 0;
     right: calc(var(--panel-width) * -1);
     width: var(--panel-width);
     height: 100%;
-    background-color: rgba(15, 15, 15, 0.98);
+    background-color: var(--panel-bg);
     backdrop-filter: blur(20px);
     border-left: 1px solid var(--border-color);
     z-index: 1000;
     transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     padding: 50px 40px;
-    box-shadow: -20px 0 50px rgba(0,0,0,0.5);
+    box-shadow: -20px 0 50px rgba(0,0,0,0.2);
     overflow-y: auto;
 }
 
@@ -181,105 +211,33 @@ body.panel-open .admin-panel {
     right: 0;
 }
 
-.panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px;
-}
-
-.btn-close {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 2rem;
-    cursor: pointer;
-}
-
-/* 드롭 존 복구 */
 .drop-zone {
     width: 100%;
-    height: 220px;
-    border: 2px dashed #222;
-    border-radius: 24px;
+    height: 180px;
+    border: 2px dashed var(--border-color);
+    border-radius: 20px;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    background-color: #0a0a0a;
+    background-color: var(--bg-dark);
     margin-bottom: 15px;
-    position: relative;
 }
 
-.drop-zone.dragover {
-    border-color: var(--action-green);
-    background-color: rgba(181, 255, 69, 0.05);
-}
-
-.drop-icon {
-    font-size: 3.5rem;
-    margin-bottom: 15px;
-    filter: grayscale(1) opacity(0.5);
-}
-
-.drop-text {
-    font-size: 1rem;
-    color: var(--text-main);
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.drop-subtext {
-    font-size: 0.8rem;
+.input-hint {
+    font-size: 0.75rem;
     color: var(--text-muted);
-}
-
-.file-name {
-    font-size: 0.8rem;
-    color: var(--action-green);
-    font-weight: 600;
-    text-align: center;
-    display: block;
-    margin-bottom: 25px;
-}
-
-.input-group {
-    margin-bottom: 25px;
-}
-
-.input-group label {
-    display: block;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.admin-panel input[type="text"], 
-.admin-panel textarea {
-    width: 100%;
-    background-color: #0a0a0a;
-    border: 1px solid #222;
-    border-radius: 12px;
-    color: var(--text-main);
-    padding: 16px;
-    font-family: inherit;
-    font-size: 0.95rem;
+    margin-top: 5px;
 }
 
 .btn-primary {
     width: 100%;
-    padding: 20px;
+    padding: 18px;
     background-color: var(--action-green);
     color: #000;
     border: none;
-    border-radius: 16px;
-    font-weight: 900;
-    font-size: 1.1rem;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 1rem;
     cursor: pointer;
     margin-top: 20px;
 }
@@ -288,16 +246,15 @@ body.panel-open .admin-panel {
     position: absolute;
     top: 15px;
     right: 15px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.3);
     border: none;
-    color: white;
+    color: #fff;
     width: 30px;
     height: 30px;
     border-radius: 50%;
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.2s;
-    z-index: 10;
 }
 
 .video-item:hover .btn-delete {

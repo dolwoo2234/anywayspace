@@ -1,5 +1,5 @@
 /* 
-    Video Prompt Archive - 경로 자동 정제 로직 포함
+    Video Prompt Archive - 테마 전환 및 공식 데이터 업데이트
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sizeSlider = document.getElementById('size-slider');
     const tagCloud = document.getElementById('tag-cloud');
     const template = document.getElementById('video-item-template');
+    const themeToggle = document.getElementById('theme-toggle');
     
     const adminToggle = document.getElementById('admin-toggle');
     const closePanel = document.getElementById('close-panel');
@@ -18,24 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const editPrompt = document.getElementById('edit-prompt');
     const editTags = document.getElementById('edit-tags');
     const editVideoPath = document.getElementById('edit-video-path');
-    const fileNameDisplay = document.getElementById('file-name');
 
+    // ==========================================
+    // [OFFICIAL ARCHIVE DATA]
+    // 환영 메시지를 제거하고, 안전한 영문 파일명을 적용했습니다.
+    // ==========================================
     const OFFICIAL_DATA = [
         {
             "id": 1776833345917,
             "prompt": "A man having sex in the missionary position lifts his hand from the woman’s leg, gathers his strength, and slaps her bottom hard once.\nThe man lifts his hand from her thigh, raising it high to his left, then swings his arm naturally downwards, striking her buttocks with force.\n\nThe man raises his arm, swings it widely and brings it down, striking the woman on the buttocks.",
-            "videoSrc": "assets/#29_AC_스팽킹_2초 (1).mp4",
+            "videoSrc": "assets/spanking_action_01.mp4",
             "tags": [
                 "spanking"
-            ]
-        },
-        {
-            "id": 1,
-            "prompt": "Anyway Space 아카이브에 오신 것을 환영합니다. 이 메시지는 공식 데이터로 등록되어 누구나 볼 수 있습니다.",
-            "videoSrc": "assets/video.mp4",
-            "tags": [
-                "Welcome",
-                "Official"
             ]
         }
     ];
@@ -44,6 +39,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentVideoURL = null;
     let currentFilter = 'all';
 
+    // 1. 테마 관리
+    const savedTheme = localStorage.getItem('anyway_theme') || 'dark-theme';
+    document.body.className = `archive-mode ${savedTheme}`;
+
+    themeToggle.addEventListener('click', () => {
+        if (document.body.classList.contains('dark-theme')) {
+            document.body.classList.replace('dark-theme', 'light-theme');
+            localStorage.setItem('anyway_theme', 'light-theme');
+        } else {
+            document.body.classList.replace('light-theme', 'dark-theme');
+            localStorage.setItem('anyway_theme', 'dark-theme');
+        }
+    });
+
+    // 2. 데이터 로드
     const savedLocalData = localStorage.getItem('anyway_local_archive_v1');
     const localData = savedLocalData ? JSON.parse(savedLocalData) : [];
     archiveData = [...localData, ...OFFICIAL_DATA];
@@ -116,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             delBtn.addEventListener('click', () => {
-                if(confirm('로컬 아카이브에서 삭제하시겠습니까? (공식 데이터는 삭제되지 않습니다)')) {
+                if(confirm('로컬 아카이브에서 삭제하시겠습니까?')) {
                     const newLocalData = localData.filter(i => i.id !== item.id);
                     localStorage.setItem('anyway_local_archive_v1', JSON.stringify(newLocalData));
                     location.reload();
@@ -127,15 +137,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 경로 정제 함수 (따옴표, @ 등 제거)
     function sanitizePath(path) {
         if (!path) return "";
-        // 양 끝의 따옴표, @ 기호, 공백 제거
         return path.trim().replace(/^["'@]+|["']+$/g, '').trim();
     }
 
     function handleFile(file) {
-        fileNameDisplay.textContent = `Preview: ${file.name}`;
         currentVideoURL = URL.createObjectURL(file);
     }
 
@@ -149,14 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dropZone.addEventListener('click', () => videoUpload.click());
     videoUpload.addEventListener('change', (e) => { if(e.target.files[0]) handleFile(e.target.files[0]); });
 
-    // 추가 버튼
     addProjectBtn.addEventListener('click', () => {
-        // 입력된 경로를 정제하여 사용
         const cleanPath = sanitizePath(editVideoPath.value);
         const finalVideoSrc = cleanPath || currentVideoURL;
-
         if (!finalVideoSrc) {
-            alert('영상 파일 또는 GitHub 경로를 입력해주세요!');
+            alert('영상 파일 또는 경로를 입력해주세요!');
             return;
         }
 
@@ -173,10 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     exportBtn.addEventListener('click', () => {
-        const dataToExport = archiveData;
-        const dataStr = JSON.stringify(dataToExport, null, 2);
+        const dataStr = JSON.stringify(archiveData, null, 2);
         navigator.clipboard.writeText(dataStr).then(() => {
-            alert('데이터가 클립보드에 복사되었습니다!\n이 내용을 Gemini에게 전달하여 "공식 데이터로 등록해줘"라고 말씀하세요.');
+            alert('데이터가 복사되었습니다!');
         });
     });
 

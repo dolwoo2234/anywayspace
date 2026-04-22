@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 </head>
-<body class="archive-mode">
+<body class="archive-mode dark-theme"> <!-- 기본 테마는 다크 -->
     <div class="showcase-container">
         <!-- 상단 헤더 -->
         <header class="header">
@@ -18,6 +18,9 @@
             </div>
             
             <div class="header-controls">
+                <!-- 테마 토글 버튼 추가 -->
+                <button id="theme-toggle" class="btn-theme" title="Toggle Theme">🌓 Theme</button>
+                
                 <div class="size-controller">
                     <label>View Size</label>
                     <input type="range" id="size-slider" min="280" max="600" value="400">
@@ -38,7 +41,7 @@
             <!-- 데이터가 로드되면 여기에 나타납니다 -->
         </main>
 
-        <!-- 매니지먼트 패널 (큐레이터 전용) -->
+        <!-- 매니지먼트 패널 -->
         <aside id="admin-panel" class="admin-panel">
             <div class="panel-header">
                 <h3>Curator Settings</h3>
@@ -51,11 +54,9 @@
                         <div class="drop-zone-content">
                             <span class="drop-icon">🎬</span>
                             <p class="drop-text">Drag & Drop for Preview</p>
-                            <p class="drop-subtext">브라우저 메모리에 임시 로드합니다.</p>
                         </div>
                         <input type="file" id="video-upload" accept="video/mp4" hidden>
                     </div>
-                    <span id="file-name" class="file-name">No file chosen</span>
                 </div>
 
                 <div class="input-group">
@@ -72,17 +73,14 @@
 
                 <button id="add-project" class="btn-primary">Add to Local Archive</button>
 
-                <!-- 데이터 연동 섹션 -->
-                <div class="export-section" style="margin-top: 40px; border-top: 1px solid #222; padding-top: 20px;">
-                    <label style="font-size: 0.75rem; color: #888; display: block; margin-bottom: 12px; font-weight: 700;">DATA SYNC & DEPLOY</label>
+                <div class="export-section" style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                    <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 12px; font-weight: 700;">DATA SYNC & DEPLOY</label>
                     <button id="export-data" class="btn-secondary" style="width: 100%; padding: 12px; font-weight: 700;">Copy All Data for GitHub Deploy</button>
-                    <p class="input-hint" style="margin-top: 8px;">복사된 데이터를 Gemini에게 전달하여 배포를 완료하세요.</p>
                 </div>
             </div>
         </aside>
     </div>
 
-    <!-- 개별 비디오 세트 템플릿 -->
     <template id="video-item-template">
         <div class="video-item">
             <div class="video-wrapper">
