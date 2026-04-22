@@ -45,6 +45,20 @@
             <!-- 동적 로드 -->
         </main>
 
+        <!-- 댓글 섹션 추가 -->
+        <section id="comments" style="margin-top: 100px; padding: 40px; background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border);">
+            <div id="disqus_thread"></div>
+            <script>
+                (function() {
+                var d = document, s = d.createElement('script');
+                s.src = 'https://anyway-space.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        </section>
+
         <!-- 사이드 매니지먼트 패널 -->
         <aside id="admin-panel" class="curator-drawer">
             <div class="panel-inner">
