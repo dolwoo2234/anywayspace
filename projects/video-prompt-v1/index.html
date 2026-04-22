@@ -3,63 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Prompt Showcase - Anyway Space</title>
+    <title>Video Prompt Archive - Anyway Space</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 </head>
-<body>
+<body class="archive-mode">
     <div class="showcase-container">
-        <!-- 메인 헤더 (프로젝트 제목) -->
+        <!-- 상단 헤더 -->
         <header class="header">
-            <span class="badge">Collection #01</span>
-            <h1>Video AI Prompt Analysis</h1>
-            <p class="subtitle">영상의 움직임과 프롬프트의 상관관계를 아카이브합니다.</p>
+            <div class="header-left">
+                <span class="badge">Collection #01</span>
+                <h1>Video AI Archive</h1>
+                <p class="subtitle">주요 태그와 인터랙티브 레이아웃으로 영상을 탐색하세요.</p>
+            </div>
+            
+            <div class="header-controls">
+                <div class="size-controller">
+                    <label>View Size</label>
+                    <input type="range" id="size-slider" min="280" max="800" value="400">
+                </div>
+                <button id="admin-toggle" class="btn-admin">+ Add New Set</button>
+            </div>
         </header>
 
-        <!-- 메인 콘텐츠: 영상 + 프롬프트 -->
-        <main class="content-grid">
-            <!-- 좌측: 영상 영역 -->
-            <section class="video-section">
-                <div class="video-wrapper">
-                    <!-- GIF처럼 자동 재생/반복되도록 설정된 비디오 플레이어 -->
-                    <video id="prompt-video" autoplay muted loop playsinline poster="assets/thumbnail.png">
-                        <source src="assets/video.mp4" type="video/mp4">
-                        브라우저가 비디오를 지원하지 않습니다.
-                    </video>
-                    <!-- 영상 재생 상태를 알려주는 작은 배지 -->
-                    <div class="video-status">LOOPING</div>
-                </div>
-            </section>
+        <!-- 태그 필터 바 -->
+        <nav class="filter-bar">
+            <div id="tag-cloud" class="tag-cloud">
+                <button class="tag-chip active" data-tag="all">All Works</button>
+                <!-- 동적으로 태그가 추가됨 -->
+            </div>
+        </nav>
 
-            <!-- 우측: 프롬프트 정보 영역 -->
-            <section class="prompt-section">
-                <div class="prompt-card">
-                    <h2 class="prompt-label">Generated Prompt</h2>
-                    <div class="prompt-box">
-                        <p id="prompt-text">
-                            <!-- 여기에 프롬프트를 입력하세요 -->
-                            "A cinematic close-up of a person walking through a neon-lit rain, high resolution, 8k, fluid motion, dramatic shadows, cyberpunk aesthetic."
-                        </p>
-                    </div>
-                    
-                    <div class="prompt-meta">
-                        <div class="meta-item">
-                            <span class="meta-label">DURATION</span>
-                            <span class="meta-value">5s</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">TYPE</span>
-                            <span class="meta-value">AI Video</span>
-                        </div>
+        <!-- 메인 콘텐츠: 영상 그리드 리스트 -->
+        <main id="video-grid" class="video-grid">
+            <!-- script.js에서 동적으로 렌더링됨 -->
+        </main>
+
+        <!-- 매니지먼트 패널 -->
+        <aside id="admin-panel" class="admin-panel">
+            <div class="panel-header">
+                <h3>Add New Project</h3>
+                <button id="close-panel" class="btn-close">&times;</button>
+            </div>
+            <div class="panel-body">
+                <div class="input-group">
+                    <label>Video Upload (.mp4)</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="video-upload" accept="video/mp4" hidden>
+                        <button class="btn-secondary" onclick="document.getElementById('video-upload').click()">Choose File</button>
+                        <span id="file-name" class="file-name">No file chosen</span>
                     </div>
                 </div>
-            </section>
-        </main>
+                <div class="input-group">
+                    <label>Tags (Comma separated)</label>
+                    <input type="text" id="edit-tags" placeholder="e.g. Cyberpunk, Neon, Rain">
+                </div>
+                <div class="input-group">
+                    <label>Prompt Text</label>
+                    <textarea id="edit-prompt" placeholder="프롬프트를 입력하세요..."></textarea>
+                </div>
+                <button id="add-project" class="btn-primary">Add to Archive</button>
+            </div>
+        </aside>
     </div>
 
-    <!-- 하단 메뉴: Anyway Space 로고나 간략한 정보 -->
-    <footer class="footer">
-        <p>&copy; 2026 Anyway Space - Design & Prompt Archive</p>
-    </footer>
+    <!-- 개별 비디오 세트 템플릿 -->
+    <template id="video-item-template">
+        <div class="video-item">
+            <div class="video-wrapper">
+                <video class="prompt-video" autoplay muted loop playsinline></video>
+                <div class="video-status">LOOPING</div>
+            </div>
+            <div class="prompt-info">
+                <div class="item-tags"></div>
+                <div class="prompt-box">
+                    <p class="display-prompt"></p>
+                </div>
+                <button class="btn-delete" title="Delete">&times;</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="project-script.js"></script>
 </body>
 </html>
