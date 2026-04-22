@@ -30,14 +30,14 @@ function handleFiles(files) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
-            img.onload = () => processImage(img);
+            img.onload = () => processImage(img, file.name);
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);
     });
 }
 
-function processImage(img) {
+function processImage(img, fileName) {
     let width = img.width;
     let height = img.height;
     let ratio = width / height;
@@ -63,11 +63,14 @@ function processImage(img) {
     ctx.clearRect(0, 0, 1024, 576);
     ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
 
-    const result = document.createElement('img');
-    result.src = canvas.toDataURL('image/jpeg');
+    const dataUrl = canvas.toDataURL('image/jpeg');
     
     const container = document.createElement('div');
     container.className = 'preview-item';
-    container.appendChild(result);
+    container.innerHTML = `
+        <img src="${dataUrl}">
+        <p>Original: ${width}x${height} → Processed: 1024x576</p>
+        <a href="${dataUrl}" download="resized_${fileName}">Download</a>
+    `;
     preview.appendChild(container);
 }

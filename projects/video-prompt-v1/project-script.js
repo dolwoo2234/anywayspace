@@ -1,6 +1,6 @@
 /* 
     Prompt Archive - 마스터 로직 (v16)
-    [복구 버전] New Entry 버튼 활성화 및 불필요한 참조 제거
+    [복구 버전] 테마 제어 로직 및 기존 아카이브 데이터 로드 보존
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sizeSlider = document.getElementById('size-slider');
     const tagCloud = document.getElementById('tag-cloud');
     const template = document.getElementById('video-item-template');
+    const themeToggle = document.getElementById('theme-toggle'); // 테마 토글 복구
     
     const adminToggle = document.getElementById('admin-toggle');
     const closePanel = document.getElementById('close-panel');
@@ -44,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let archiveData = [...localData, ...OFFICIAL_DATA];
     let currentFilter = 'all';
 
+    // 기존 테마 로직 완벽 복구
     const updateThemeUI = () => {
         const isLight = document.body.classList.contains('light-theme');
         themeToggle.innerHTML = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';

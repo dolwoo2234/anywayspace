@@ -1,0 +1,20 @@
+/* Global Dark/Light Theme Styles */
+:root {
+    --bg-app: #121212;
+    --text-app: #e0e0e0;
+    --bg-card: #1e1e1e;
+    --border: #333;
+}
+
+body.light-theme {
+    --bg-app: #f4f4f4;
+    --text-app: #121212;
+    --bg-card: #ffffff;
+    --border: #ccc;
+}
+
+body {
+    background-color: var(--bg-app);
+    color: var(--text-app);
+    transition: background 0.3s, color 0.3s;
+}
