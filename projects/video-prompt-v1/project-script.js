@@ -189,14 +189,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = URL.createObjectURL(file);
         window.tempVideoURL = url;
         
-        // 초기 UI 상태 설정
+        // 초기 UI 상태 설정 (분석 중 표시)
         dropZone.innerHTML = `
             <video autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover; border-radius:22px;">
                 <source src="${url}" type="video/mp4">
             </video>
-            <div id="drop-status" style="position:absolute; inset:0; background:rgba(0,0,0,0.3); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:0.9rem;">
-                <span>ANALYZING...</span>
-            </div>`;
+            <div id="drop-status" style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:1rem; transition: all 0.5s ease; border-radius:22px; pointer-events:none;">
+                <div class="loader-spinner" style="width:30px; height:30px; border:4px solid #fff; border-top-color:transparent; border-radius:50%; animation: spin 1s linear infinite; margin-bottom:10px;"></div>
+                <span>ANALYZING METADATA...</span>
+            </div>
+            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>`;
         
         editVideoPath.value = `assets/${file.name}`;
         
@@ -204,18 +206,26 @@ document.addEventListener('DOMContentLoaded', () => {
         scanFileForPrompt(file);
     }
 
-    // 스캔 결과에 따라 UI 업데이트
+    // 스캔 결과에 따라 UI 업데이트 후 자동 소멸
     function updateDropZoneStatus(success) {
         const statusEl = document.getElementById('drop-status');
         if (!statusEl) return;
         
         if (success) {
-            statusEl.innerHTML = '<span>✅ METADATA EXTRACTED</span>';
-            statusEl.style.background = 'rgba(46, 204, 113, 0.4)';
+            statusEl.innerHTML = '<span style="font-size:2rem;">✅</span><span style="margin-top:10px;">PROMPT EXTRACTED</span>';
+            statusEl.style.background = 'rgba(46, 204, 113, 0.6)';
         } else {
-            statusEl.innerHTML = '<span>⚠️ NO METADATA FOUND</span><button onclick="location.reload()" style="margin-top:10px; cursor:pointer;">Reset</button>';
-            statusEl.style.background = 'rgba(231, 76, 60, 0.4)';
+            statusEl.innerHTML = '<span style="font-size:2rem;">⚠️</span><span style="margin-top:10px;">NO METADATA</span>';
+            statusEl.style.background = 'rgba(231, 76, 60, 0.6)';
         }
+
+        // 2초 뒤 오버레이 서서히 제거 (수동 입력을 위해)
+        setTimeout(() => {
+            statusEl.style.opacity = '0';
+            setTimeout(() => {
+                if(statusEl.parentNode === dropZone) statusEl.remove();
+            }, 500);
+        }, 1500);
     }
 
     addProjectBtn.addEventListener('click', () => {
