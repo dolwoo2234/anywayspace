@@ -27,10 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     const OFFICIAL_DATA = [
         {
-            id: 1,
-            prompt: "Anyway Space 아카이브에 오신 것을 환영합니다. 이 메시지는 공식 데이터로 등록되어 누구나 볼 수 있습니다.",
-            videoSrc: "assets/video.mp4",
-            tags: ["Welcome", "Official"]
+            "id": 1776833345917,
+            "prompt": "A man having sex in the missionary position lifts his hand from the woman’s leg, gathers his strength, and slaps her bottom hard once.\nThe man lifts his hand from her thigh, raising it high to his left, then swings his arm naturally downwards, striking her buttocks with force.\n\nThe man raises his arm, swings it widely and brings it down, striking the woman on the buttocks.",
+            "videoSrc": "assets/spanking_01.mp4",
+            "tags": [
+                "spanking"
+            ]
+        },
+        {
+            "id": 1,
+            "prompt": "Anyway Space 아카이브에 오신 것을 환영합니다. 이 메시지는 공식 데이터로 등록되어 누구나 볼 수 있습니다.",
+            "videoSrc": "assets/video.mp4",
+            "tags": [
+                "Welcome",
+                "Official"
+            ]
         }
     ];
 
