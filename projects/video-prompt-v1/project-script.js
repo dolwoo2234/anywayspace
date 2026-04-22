@@ -1,5 +1,5 @@
 /* 
-    Video Prompt Archive - 배포 및 영구 저장 로직
+    Video Prompt Archive - 수동 관리형 아카이브 로직 (Curator Edition)
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,16 +18,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const editPrompt = document.getElementById('edit-prompt');
     const editTags = document.getElementById('edit-tags');
     const editVideoPath = document.getElementById('edit-video-path');
-    const fileNameDisplay = document.createElement('span'); // 동적 생성
+    const fileNameDisplay = document.getElementById('file-name');
 
-    // [중요] 기본 데이터: 당신이 나중에 줄 JSON 코드가 여기에 들어갑니다.
-    // 다른 사람들이 접속했을 때 이 목록이 기본으로 보입니다.
-    const DEFAULT_DATA = [
+    // ==========================================
+    // [OFFICIAL ARCHIVE DATA]
+    // Gemini가 업데이트하는 공식 데이터 배열입니다.
+    // 누구나 접속했을 때 기본으로 보이는 데이터입니다.
+    // ==========================================
+    const OFFICIAL_DATA = [
         {
             id: 1,
-            prompt: "Anyway Space에 오신 것을 환영합니다. 당신의 첫 프롬프트를 등록해보세요.",
+            prompt: "Anyway Space 아카이브에 오신 것을 환영합니다. 이 메시지는 공식 데이터로 등록되어 누구나 볼 수 있습니다.",
             videoSrc: "assets/video.mp4",
-            tags: ["Welcome", "Guide"]
+            tags: ["Welcome", "Official"]
         }
     ];
 
@@ -35,13 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentVideoURL = null;
     let currentFilter = 'all';
 
-    // 1. 데이터 로드: LocalStorage(내 작업) + DEFAULT_DATA(서버 작업)
-    const savedData = localStorage.getItem('anyway_archive_shared_v1');
-    if (savedData) {
-        archiveData = JSON.parse(savedData);
-    } else {
-        archiveData = DEFAULT_DATA;
-    }
+    // 1. 데이터 로드 로직
+    // OFFICIAL_DATA를 기본으로 하고, LocalStorage에 추가된 작업 데이터를 합칩니다.
+    const savedLocalData = localStorage.getItem('anyway_local_archive_v1');
+    const localData = savedLocalData ? JSON.parse(savedLocalData) : [];
+    
+    // 중복 방지를 위해 공식 데이터와 로컬 데이터를 합침
+    archiveData = [...localData, ...OFFICIAL_DATA];
+    
     updateUI();
 
     function updateUI() {
@@ -79,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderGrid() {
         videoGrid.innerHTML = '';
         if (archiveData.length === 0) {
-            videoGrid.innerHTML = `<div style="padding: 100px; color: #444; font-size: 1.1rem; text-align: center; width: 100%;">데이터가 없습니다.</div>`;
+            videoGrid.innerHTML = `<div style="padding: 100px; color: #444; font-size: 1.1rem; text-align: center; width: 100%;">아카이브가 비어 있습니다.</div>`;
             return;
         }
 
@@ -110,9 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             delBtn.addEventListener('click', () => {
-                if(confirm('삭제하시겠습니까? (로컬 저장소에서만 삭제됩니다)')) {
-                    archiveData = archiveData.filter(i => i.id !== item.id);
-                    saveAndRefresh();
+                if(confirm('로컬 아카이브에서 삭제하시겠습니까? (공식 데이터는 삭제되지 않습니다)')) {
+                    const newLocalData = localData.filter(i => i.id !== item.id);
+                    localStorage.setItem('anyway_local_archive_v1', JSON.stringify(newLocalData));
+                    location.reload(); // 단순화를 위해 리로드
                 }
             });
             
@@ -120,11 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 파일 처리
+    // 파일 핸들링 (미리보기용)
     function handleFile(file) {
+        fileNameDisplay.textContent = `Preview: ${file.name}`;
         currentVideoURL = URL.createObjectURL(file);
-        // 미리보기를 위해 첫 번째 카드에 즉시 반영하는 로직 대신 알림
-        alert(`Preview loaded: ${file.name}\n정식 배포를 위해 Step 2에 경로를 입력하는 것을 권장합니다.`);
     }
 
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -137,11 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dropZone.addEventListener('click', () => videoUpload.click());
     videoUpload.addEventListener('change', (e) => { if(e.target.files[0]) handleFile(e.target.files[0]); });
 
-    // 추가 버튼
+    // 추가 버튼 (로컬에 임시 저장)
     addProjectBtn.addEventListener('click', () => {
         const finalVideoSrc = editVideoPath.value || currentVideoURL;
         if (!finalVideoSrc) {
-            alert('영상 파일 또는 경로를 입력해주세요!');
+            alert('영상 파일 또는 GitHub 경로를 입력해주세요!');
             return;
         }
 
@@ -152,31 +156,19 @@ document.addEventListener('DOMContentLoaded', () => {
             tags: editTags.value ? editTags.value.split(',').map(t => t.trim()) : []
         };
 
-        archiveData.unshift(newItem);
-        saveAndRefresh();
-        resetForm();
-        document.body.classList.remove('panel-open');
+        const newLocalData = [newItem, ...localData];
+        localStorage.setItem('anyway_local_archive_v1', JSON.stringify(newLocalData));
+        location.reload();
     });
 
-    // 데이터 내보내기 (Export)
+    // 데이터 내보내기 (Gemini 전달용)
     exportBtn.addEventListener('click', () => {
-        const dataStr = JSON.stringify(archiveData, null, 2);
+        const dataToExport = archiveData; // 전체 데이터를 내보냄
+        const dataStr = JSON.stringify(dataToExport, null, 2);
         navigator.clipboard.writeText(dataStr).then(() => {
-            alert('아카이브 데이터가 복사되었습니다!\n이 내용을 저(Gemini)에게 전달해주시면 모두가 볼 수 있게 사이트에 고정해 드립니다.');
+            alert('데이터가 클립보드에 복사되었습니다!\n이 내용을 Gemini에게 전달하여 "공식 데이터로 등록해줘"라고 말씀하세요.');
         });
     });
-
-    function saveAndRefresh() {
-        localStorage.setItem('anyway_archive_shared_v1', JSON.stringify(archiveData));
-        updateUI();
-    }
-
-    function resetForm() {
-        editPrompt.value = '';
-        editTags.value = '';
-        editVideoPath.value = '';
-        currentVideoURL = null;
-    }
 
     sizeSlider.addEventListener('input', () => {
         document.querySelectorAll('.video-item').forEach(card => {

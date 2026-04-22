@@ -9,12 +9,14 @@
 </head>
 <body class="archive-mode">
     <div class="showcase-container">
+        <!-- 상단 헤더 -->
         <header class="header">
             <div class="header-left">
                 <span class="badge">Collection #01</span>
                 <h1>Video AI Archive</h1>
-                <p class="subtitle">모두가 공유할 수 있는 영상 프롬프트 아카이브입니다.</p>
+                <p class="subtitle">큐레이터가 엄선한 영상 프롬프트 아카이브입니다.</p>
             </div>
+            
             <div class="header-controls">
                 <div class="size-controller">
                     <label>View Size</label>
@@ -24,59 +26,63 @@
             </div>
         </header>
 
+        <!-- 태그 필터 바 -->
         <nav class="filter-bar">
             <div id="tag-cloud" class="tag-cloud">
                 <button class="tag-chip active" data-tag="all">All Works</button>
             </div>
         </nav>
 
+        <!-- 메인 콘텐츠 -->
         <main id="video-grid" class="video-grid">
             <!-- 데이터가 로드되면 여기에 나타납니다 -->
         </main>
 
+        <!-- 매니지먼트 패널 (큐레이터 전용) -->
         <aside id="admin-panel" class="admin-panel">
             <div class="panel-header">
-                <h3>Project Settings</h3>
+                <h3>Curator Settings</h3>
                 <button id="close-panel" class="btn-close">&times;</button>
             </div>
             <div class="panel-body">
-                <!-- 드래그 앤 드롭 업로드 -->
                 <div class="input-group">
-                    <label>Step 1. Video Upload</label>
+                    <label>Step 1. Local Preview (MP4)</label>
                     <div id="drop-zone" class="drop-zone">
                         <div class="drop-zone-content">
                             <span class="drop-icon">🎬</span>
                             <p class="drop-text">Drag & Drop for Preview</p>
+                            <p class="drop-subtext">브라우저 메모리에 임시 로드합니다.</p>
                         </div>
                         <input type="file" id="video-upload" accept="video/mp4" hidden>
                     </div>
-                </div>
-
-                <!-- 고정 경로 입력 (영구 저장용) -->
-                <div class="input-group">
-                    <label>Step 2. Permanent Video Path (Optional)</label>
-                    <input type="text" id="edit-video-path" placeholder="e.g. assets/my-video.mp4">
-                    <p class="input-hint">GitHub에 올린 파일 경로를 적으면 새로고침해도 유지됩니다.</p>
+                    <span id="file-name" class="file-name">No file chosen</span>
                 </div>
 
                 <div class="input-group">
-                    <label>Step 3. Tags & Prompt</label>
+                    <label>Step 2. GitHub Asset Path (Required for Save)</label>
+                    <input type="text" id="edit-video-path" placeholder="e.g. assets/dance.mp4">
+                    <p class="input-hint">GitHub `assets` 폴더에 올린 파일 경로를 적으세요.</p>
+                </div>
+
+                <div class="input-group">
+                    <label>Step 3. Details</label>
                     <input type="text" id="edit-tags" placeholder="Tags (Comma separated)">
                     <textarea id="edit-prompt" placeholder="Enter Prompt here..."></textarea>
                 </div>
 
-                <button id="add-project" class="btn-primary">Add to Archive</button>
+                <button id="add-project" class="btn-primary">Add to Local Archive</button>
 
-                <!-- 데이터 공유용 Export 기능 -->
+                <!-- 데이터 연동 섹션 -->
                 <div class="export-section" style="margin-top: 40px; border-top: 1px solid #222; padding-top: 20px;">
-                    <label style="font-size: 0.7rem; color: #666; display: block; margin-bottom: 10px;">FOR SHARING (JSON)</label>
-                    <button id="export-data" class="btn-secondary" style="width: 100%;">Copy All Data to Share</button>
-                    <p class="input-hint">복사한 코드를 저(Gemini)에게 주시면 모두가 볼 수 있게 배포해 드립니다.</p>
+                    <label style="font-size: 0.75rem; color: #888; display: block; margin-bottom: 12px; font-weight: 700;">DATA SYNC & DEPLOY</label>
+                    <button id="export-data" class="btn-secondary" style="width: 100%; padding: 12px; font-weight: 700;">Copy All Data for GitHub Deploy</button>
+                    <p class="input-hint" style="margin-top: 8px;">복사된 데이터를 Gemini에게 전달하여 배포를 완료하세요.</p>
                 </div>
             </div>
         </aside>
     </div>
 
+    <!-- 개별 비디오 세트 템플릿 -->
     <template id="video-item-template">
         <div class="video-item">
             <div class="video-wrapper">
