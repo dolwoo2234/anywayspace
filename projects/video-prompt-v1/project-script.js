@@ -1,5 +1,5 @@
 /* 
-    Prompt Archive - 데이터 로직 안정화 (v6)
+    Prompt Archive - 통합 로직 및 인터랙티브 제어 (v7)
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,11 +7,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const sizeSlider = document.getElementById('size-slider');
     const tagCloud = document.getElementById('tag-cloud');
     const template = document.getElementById('video-item-template');
+    const themeToggle = document.getElementById('theme-toggle');
     
-    // 로컬 데이터 키를 확실하게 고정
-    const LOCAL_STORAGE_KEY = 'anyway_archive_v6';
+    const adminToggle = document.getElementById('admin-toggle');
+    const closePanel = document.getElementById('close-panel');
+    const addProjectBtn = document.getElementById('add-project');
+    const exportBtn = document.getElementById('export-data');
+    
+    const dropZone = document.getElementById('drop-zone');
+    const videoUpload = document.getElementById('video-upload');
+    const editPrompt = document.getElementById('edit-prompt');
+    const editTags = document.getElementById('edit-tags');
+    const editVideoPath = document.getElementById('edit-video-path');
 
-    // 공식 데이터
+    const LOCAL_STORAGE_KEY = 'anyway_archive_v7';
+
+    // 공식 데이터 (유실되지 않도록 확실하게 고정)
     const OFFICIAL_DATA = [
         {
             "id": 1776833345917,
@@ -36,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.tags) item.tags.forEach(t => allTags.add(t.trim()));
         });
 
-        tagCloud.innerHTML = `<button class="tag-pill ${currentFilter === 'all' ? 'active' : ''}" data-tag="all">All Works</button>`;
+        tagCloud.innerHTML = `<button class="tag-pill ${currentFilter === 'all' ? 'active' : ''}" data-tag="all">Everything</button>`;
         
         allTags.forEach(tag => {
             const btn = document.createElement('button');
@@ -48,16 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             tagCloud.appendChild(btn);
         });
-
-        tagCloud.querySelector('[data-tag="all"]').addEventListener('click', () => {
-            currentFilter = 'all';
-            updateUI();
-        });
     }
 
     function renderGrid() {
         videoGrid.innerHTML = '';
-        
         const filteredData = currentFilter === 'all' 
             ? archiveData 
             : archiveData.filter(item => item.tags && item.tags.includes(currentFilter));
@@ -70,31 +75,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const tagContainer = clone.querySelector('.card-tags');
             const delBtn = clone.querySelector('.delete-action');
 
-            card.style.width = `${sizeSlider.value * 1.8}px`;
+            // 인터랙티브 사이즈 조절 핵심 로직
+            card.style.width = `${sizeSlider.value * 2}px`;
+            
             video.src = item.videoSrc;
-            prompt.textContent = item.prompt;
+            prompt.innerText = item.prompt;
 
             if (item.tags) {
                 item.tags.forEach(t => {
                     const span = document.createElement('span');
-                    span.className = 'tag-pill'; // 미니태그 대신 필과 동일 디자인 적용
-                    span.style.padding = "2px 8px";
-                    span.style.fontSize = "0.6rem";
+                    span.className = 'mini-tag';
                     span.textContent = t;
                     tagContainer.appendChild(span);
                 });
             }
 
             delBtn.addEventListener('click', () => {
-                // 공식 데이터 삭제 방지 및 로컬 데이터 삭제
                 if (localData.find(i => i.id === item.id)) {
-                    if(confirm('이 작업을 삭제하시겠습니까?')) {
+                    if(confirm('삭제하시겠습니까?')) {
                         localData = localData.filter(i => i.id !== item.id);
                         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
                         location.reload();
                     }
-                } else {
-                    alert('공식 데이터는 삭제할 수 없습니다.');
                 }
             });
             
@@ -102,7 +104,63 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 초기 실행
+    // 사이즈 슬라이더 실시간 반응
+    sizeSlider.addEventListener('input', () => {
+        document.querySelectorAll('.archive-card').forEach(card => {
+            card.style.width = `${sizeSlider.value * 2}px`;
+        });
+    });
+
+    // 경로 정제
+    function sanitizePath(path) {
+        return path ? path.trim().replace(/^["'@]+|["']+$/g, '').trim() : "";
+    }
+
+    // 드래그 앤 드롭
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+    
+    function handleFile(file) {
+        const url = URL.createObjectURL(file);
+        const fileName = file.name;
+        alert(`미리보기 로드됨: ${fileName}`);
+        window.tempVideoURL = url;
+    }
+
+    addProjectBtn.addEventListener('click', () => {
+        const cleanPath = sanitizePath(editVideoPath.value);
+        const finalVideoSrc = cleanPath || window.tempVideoURL;
+        if (!finalVideoSrc) return alert('영상 또는 경로가 필요합니다.');
+
+        const newItem = {
+            id: Date.now(),
+            prompt: editPrompt.value || "No prompt",
+            videoSrc: finalVideoSrc,
+            tags: editTags.value ? editTags.value.split(',').map(t => t.trim()) : []
+        };
+
+        localData.unshift(newItem);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
+        location.reload();
+    });
+
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        document.body.classList.toggle('dark-theme');
+    });
+
+    exportBtn.addEventListener('click', () => {
+        const dataStr = JSON.stringify(archiveData, null, 2);
+        navigator.clipboard.writeText(dataStr).then(() => alert('Sync Code Copied!'));
+    });
+
+    adminToggle.addEventListener('click', () => document.body.classList.add('panel-open'));
+    closePanel.addEventListener('click', () => document.body.classList.remove('panel-open'));
+
     updateUI();
-    // 나머지 이벤트 리스너(admin-toggle 등)는 동일
 });
