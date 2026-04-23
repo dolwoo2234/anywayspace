@@ -3,29 +3,11 @@
     [최종 통합본] 1:1 레이아웃 + 테마 시스템 + 경로 최적화
 */
 
+@import url('../../global-theme.css');
+
 :root {
-    --bg-base: #050505;
-    --bg-card: #111111;
-    --bg-accent: #1a1a1a;
-    --panel-bg: rgba(15, 15, 15, 0.98);
-    --text-main: #ffffff;
-    --text-dim: #777777;
-    --accent: #b5ff45; 
-    --border: rgba(255, 255, 255, 0.08);
     --panel-width: 420px;
     --radius-lg: 24px;
-}
-
-/* 라이트 테마 - 확실하게 재정의 */
-body.light-theme {
-    --bg-base: #f0f2f5;
-    --bg-card: #ffffff;
-    --bg-accent: #e4e6eb;
-    --panel-bg: rgba(255, 255, 255, 0.98);
-    --text-main: #1c1e21;
-    --text-dim: #65676b;
-    --accent: #2ecc71;
-    --border: rgba(0, 0, 0, 0.1);
 }
 
 * {

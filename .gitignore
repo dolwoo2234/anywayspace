@@ -1,0 +1,18 @@
+# OS/임시 파일
+.DS_Store
+Thumbs.db
+*.log
+
+# 의존성/빌드 파일
+node_modules/
+dist/
+build/
+
+# 환경 변수/비밀 정보
+.env
+.env.*
+!.env.example
+
+# IDE 설정
+.vscode/
+.idea/
