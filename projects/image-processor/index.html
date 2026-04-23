@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Processor - Anyway Space</title>
+    <link rel="stylesheet" href="../../global-theme.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
-<body class="image-processor-mode dark-theme">
+<body class="image-processor-mode">
     <div class="showcase-container">
         <header class="main-header">
             <div class="brand-section">
@@ -19,7 +20,10 @@
             </div>
             
             <div class="control-center">
-                <div class="action-group">
+                <button id="theme-toggle" class="icon-button" title="Toggle Theme">
+                    <span>🌙</span>
+                </button>
+                <div class="action-group" style="display: flex; gap: 16px;">
                     <button id="download-all" class="primary-action-btn" disabled>
                         <span class="plus-icon">↓</span> Download All
                     </button>
@@ -61,6 +65,7 @@
         </div>
     </template>
 
+    <script src="../../global-theme.js"></script>
     <script src="project-script.js"></script>
 </body>
 </html>

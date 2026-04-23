@@ -45,21 +45,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let archiveData = [...localData, ...OFFICIAL_DATA];
     let currentFilter = 'all';
 
-    // 기존 테마 로직 완벽 복구
+    // 테마 로직: 전역 시스템 사용
     const updateThemeUI = () => {
         const isLight = document.body.classList.contains('light-theme');
         themeToggle.innerHTML = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
     };
 
     themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('light-theme');
-        document.body.classList.toggle('dark-theme');
-        localStorage.setItem('anyway_theme_v8', document.body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme');
-        updateThemeUI();
+        // 전역 toggle 로직은 global-theme.js에서 처리하지만, 
+        // 버튼 텍스트 갱신을 위해 UI 업데이트 호출
+        setTimeout(updateThemeUI, 10);
     });
 
-    const savedTheme = localStorage.getItem('anyway_theme_v8') || 'dark-theme';
-    document.body.className = `archive-mode ${savedTheme}`;
     updateThemeUI();
 
     function updateUI() { renderTagCloud(); renderGrid(); }

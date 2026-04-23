@@ -1,26 +1,9 @@
 /* 
     Image Processor - Anyway Space Aesthetic
-    Modern, Minimal, High-Contrast Dark Theme
+    Modern, Minimal, Global Theme
 */
 
-:root {
-    --bg-main: #0a0a0a;
-    --bg-card: #151515;
-    --accent: #ffffff;
-    --text-primary: #ffffff;
-    --text-secondary: #999999;
-    --border: #222222;
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Pretendard', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-    overflow-x: hidden;
-}
+@import url('../../global-theme.css');
 
 .showcase-container {
     max-width: 1400px;
@@ -41,7 +24,7 @@ body {
 .collection-badge {
     font-size: 10px;
     letter-spacing: 2px;
-    color: var(--text-secondary);
+    color: var(--text-dim);
     display: block;
     margin-bottom: 8px;
 }
@@ -51,10 +34,11 @@ body {
     font-weight: 800;
     margin: 0;
     letter-spacing: -0.5px;
+    color: var(--text-main);
 }
 
 .main-subtitle {
-    color: var(--text-secondary);
+    color: var(--text-dim);
     margin-top: 8px;
 }
 
@@ -84,13 +68,13 @@ body {
 
 .primary-action-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .icon-button {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    color: var(--text-primary);
+    color: var(--text-main);
     width: 44px;
     height: 44px;
     border-radius: 8px;
@@ -103,7 +87,7 @@ body {
 }
 
 .icon-button:hover {
-    background: #222;
+    background: var(--bg-accent);
 }
 
 /* Drop Zone */
@@ -121,7 +105,7 @@ body {
 
 .premium-drop-zone.drag-over {
     border-color: var(--accent);
-    background: #1a1a1a;
+    background: var(--bg-accent);
     transform: scale(0.99);
 }
 
@@ -132,7 +116,7 @@ body {
 }
 
 .hint {
-    color: var(--text-secondary);
+    color: var(--text-dim);
     font-size: 14px;
     margin-top: 12px;
 }
@@ -154,7 +138,7 @@ body {
 
 .archive-card:hover {
     transform: translateY(-4px);
-    border-color: #444;
+    border-color: var(--text-dim);
 }
 
 .card-media {
@@ -200,7 +184,7 @@ body {
 .filename-badge {
     font-size: 13px;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-main);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -209,13 +193,13 @@ body {
 
 .size-badge {
     font-size: 11px;
-    color: var(--text-secondary);
+    color: var(--text-dim);
 }
 
 .download-action {
     background: transparent;
     border: 1px solid var(--border);
-    color: var(--text-primary);
+    color: var(--text-main);
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 12px;
