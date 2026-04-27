@@ -1,0 +1,20 @@
+{
+  "name": "anywayspace-motion",
+  "version": "1.0.0",
+  "description": "AnySpace Cinematic Motion Showcase",
+  "main": "index.js",
+  "scripts": {
+    "render": "$env:PATH += \";\" + (Join-Path (Get-Location) \"node_modules/ffmpeg-static\"); node .agents/skills/huashu-design/scripts/render-video.js projects/motion-showcase/index.html --duration=60",
+    "convert": "node scripts/convert.js projects/motion-showcase/index.mp4",
+    "export": "npm run render && npm run convert"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.17",
+    "axios": "^1.15.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "ffmpeg-static": "^5.2.0",
+    "playwright": "^1.43.0"
+  }
+}

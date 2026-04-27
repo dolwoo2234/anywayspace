@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anyway Space - 60s Cinematic Showcase</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+        #root { width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- Animation Engine -->
+    <script type="text/babel">
+        // animations.jsx content
+        (function() {
+            const { createContext, useContext, useState, useEffect, useRef, useCallback } = React;
+            const TimeContext = createContext({ time: 0, duration: 10, playing: false });
+            const SpriteContext = createContext(null);
+            const Easing = {
+                linear: t => t,
+                easeIn: t => t * t,
+                easeOut: t => 1 - (1 - t) * (1 - t),
+                easeInOut: t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+                expoOut: t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t),
+                overshoot: t => {
+                    const c1 = 1.70158, c3 = c1 + 1;
+                    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+                },
+                spring: t => {
+                    const c = (2 * Math.PI) / 3;
+                    return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c) + 1;
+                },
+            };
+            function interpolate(t, input, output, easing) {
+                const [inStart, inEnd] = input;
+                const [outStart, outEnd] = output;
+                if (t <= inStart) return outStart;
+                if (t >= inEnd) return outEnd;
+                let progress = (t - inStart) / (inEnd - inStart);
+                if (easing) progress = easing(progress);
+                return outStart + (outEnd - outStart) * progress;
+            }
+            function useTime() { return useContext(TimeContext).time; }
+            function useSprite() {
+                const sprite = useContext(SpriteContext);
+                return sprite || { t: 0, elapsed: 0, duration: 0 };
+            }
+
+            function Stage({ duration = 10, width = 1920, height = 1080, children, bgColor = '#000' }) {
+                const [time, setTime] = useState(0);
+                const [playing, setPlaying] = useState(true);
+                const [scale, setScale] = useState(1);
+                const rafRef = useRef();
+                const lastRef = useRef(null);
+
+                useEffect(() => {
+                    const updateScale = () => {
+                        const s = Math.min(window.innerWidth / width, window.innerHeight / height);
+                        setScale(s);
+                    };
+                    updateScale();
+                    window.addEventListener('resize', updateScale);
+                    return () => window.removeEventListener('resize', updateScale);
+                }, [width, height]);
+
+                useEffect(() => {
+                    if (!playing) return;
+                    const tick = (now) => {
+                        if (lastRef.current === null) {
+                            lastRef.current = now;
+                            window.__ready = true;
+                        }
+                        const delta = (now - lastRef.current) / 1000;
+                        lastRef.current = now;
+                        setTime(prev => {
+                            const next = prev + delta;
+                            return next >= duration ? (window.__recording ? duration - 0.001 : 0) : next;
+                        });
+                        rafRef.current = requestAnimationFrame(tick);
+                    };
+                    rafRef.current = requestAnimationFrame(tick);
+                    return () => cancelAnimationFrame(rafRef.current);
+                }, [playing, duration]);
+
+                return (
+                    <TimeContext.Provider value={{ time, duration, playing, setPlaying, setTime }}>
+                        <div style={{ position: 'fixed', inset: 0, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ width, height, background: bgColor, position: 'relative', overflow: 'hidden', transform: `scale(${scale})`, transformOrigin: 'center' }}>
+                                {children}
+                            </div>
+                        </div>
+                    </TimeContext.Provider>
+                );
+            }
+
+            function Sprite({ start = 0, end = Infinity, children, style }) {
+                const { time } = useContext(TimeContext);
+                if (time < start || time >= end) return null;
+                const duration = end - start;
+                const elapsed = time - start;
+                const t = Math.max(0, Math.min(1, elapsed / duration));
+                return (
+                    <SpriteContext.Provider value={{ t, elapsed, duration, start, end }}>
+                        <div style={{ position: 'absolute', inset: 0, ...style }}>{children}</div>
+                    </SpriteContext.Provider>
+                );
+            }
+
+            window.Animations = { Stage, Sprite, useTime, useSprite, Easing, interpolate };
+        })();
+    </script>
+
+    <!-- UI Components -->
+    <script type="text/babel">
+        const { Stage, Sprite, useTime, useSprite, Easing, interpolate } = window.Animations;
+
+        const iosFrameStyles = {
+            wrapper: { display: 'inline-block', padding: 12, background: '#000', borderRadius: 60, boxShadow: '0 20px 60px rgba(0,0,0,0.5)', position: 'relative' },
+            screen: { position: 'relative', borderRadius: 48, overflow: 'hidden', background: '#fff' },
+            statusBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 54, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 32px', fontSize: 16, fontWeight: 600, zIndex: 20 },
+            dynamicIsland: { position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 124, height: 36, background: '#000', borderRadius: 999, zIndex: 30 },
+            content: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' },
+            homeIndicator: { position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', width: 140, height: 5, background: 'rgba(0,0,0,0.3)', borderRadius: 999, zIndex: 10 }
+        };
+
+        function IosFrame({ children, darkMode = false }) {
+            return (
+                <div style={iosFrameStyles.wrapper}>
+                    <div style={{ ...iosFrameStyles.screen, width: 393, height: 852, background: darkMode ? '#000' : '#fff' }}>
+                        <div style={iosFrameStyles.dynamicIsland} />
+                        <div style={iosFrameStyles.content}>{children}</div>
+                        <div style={{ ...iosFrameStyles.homeIndicator, background: darkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.2)' }} />
+                    </div>
+                </div>
+            );
+        }
+
+        const TitleScene = () => {
+            const { t } = useSprite();
+            const opacity = interpolate(t, [0, 0.2], [0, 1], Easing.easeOut) * interpolate(t, [0.8, 1], [1, 0]);
+            const y = interpolate(t, [0, 0.2], [20, 0], Easing.expoOut);
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#fff', opacity, transform: `translateY(${y}px)` }}>
+                    <h1 style={{ fontSize: 120, margin: 0, fontWeight: 800, letterSpacing: '-0.04em' }}>Anyway Space</h1>
+                    <p style={{ fontSize: 32, opacity: 0.7, marginTop: 20 }}>High-Res Design Ecosystem</p>
+                </div>
+            );
+        };
+
+        const MockupShowcase = () => {
+            const { t, elapsed } = useSprite();
+            const projects = ["Mobile Viewer", "Video Prompt", "Image Resizer"];
+            const colors = ["#FF3B30", "#34C759", "#007AFF"];
+            
+            // Floating animation
+            const floatY = Math.sin(elapsed * 2) * 20;
+            const rotation = Math.cos(elapsed * 1.5) * 5;
+            
+            // Switch projects every 6 seconds
+            const projectIndex = Math.floor(elapsed / 6.6) % projects.length;
+            const projectT = (elapsed % 6.6) / 6.6;
+            const projectOpacity = interpolate(projectT, [0, 0.1], [0, 1], Easing.easeOut) * interpolate(projectT, [0.9, 1], [1, 0]);
+
+            return (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', height: '100%', padding: '0 100px' }}>
+                    <div style={{ flex: 1, color: '#fff' }}>
+                        <h2 style={{ fontSize: 80, fontWeight: 700 }}>{projects[projectIndex]}</h2>
+                        <p style={{ fontSize: 24, opacity: 0.6 }}>Interactive Prototypes Built with Huashu-Design</p>
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center', transform: `translateY(${floatY}px) rotate(${rotation}deg)` }}>
+                        <IosFrame darkMode={true}>
+                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: colors[projectIndex], color: '#fff', fontSize: 40, fontWeight: 'bold', textAlign: 'center', padding: 40 }}>
+                                {projects[projectIndex]}<br/>Preview
+                            </div>
+                        </IosFrame>
+                    </div>
+                </div>
+            );
+        };
+
+        const UIExplode = () => {
+            const { t } = useSprite();
+            const elements = [
+                { name: "Sidebar", color: "rgba(255,255,255,0.1)", delay: 0 },
+                { name: "Glass Panel", color: "rgba(255,255,255,0.05)", delay: 0.1 },
+                { name: "OKLCH Palette", color: "oklch(85% 0.18 110)", delay: 0.2 },
+                { name: "Motion Engine", color: "rgba(255,255,255,0.15)", delay: 0.3 }
+            ];
+
+            return (
+                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: 1000 }}>
+                    {elements.map((el, i) => {
+                        const localT = Math.max(0, t - el.delay);
+                        const z = interpolate(localT, [0, 1], [-500, 500], Easing.linear);
+                        const opacity = interpolate(localT, [0, 0.2], [0, 1]) * interpolate(localT, [0.8, 1], [1, 0]);
+                        const rotateX = interpolate(t, [0, 1], [20, -20]);
+                        const rotateY = interpolate(t, [0, 1], [-30, 30]);
+
+                        return (
+                            <div key={i} style={{
+                                position: 'absolute',
+                                width: 800,
+                                height: 500,
+                                background: el.color,
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                borderRadius: 24,
+                                backdropFilter: 'blur(20px)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 48,
+                                color: '#fff',
+                                fontWeight: 600,
+                                transform: `translateZ(${z}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+                                opacity
+                            }}>
+                                {el.name}
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+        };
+
+        const Outro = () => {
+            const { t } = useSprite();
+            const opacity = interpolate(t, [0, 0.2], [0, 1]);
+            const scale = interpolate(t, [0, 1], [1.2, 1], Easing.easeOut);
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#fff', opacity, transform: `scale(${scale})` }}>
+                    <h2 style={{ fontSize: 60, margin: 0 }}>Create Your Vision</h2>
+                    <h1 style={{ fontSize: 100, margin: '20px 0', fontWeight: 800 }}>Anyway Space</h1>
+                    <div style={{ marginTop: 40, padding: '12px 24px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 40, fontSize: 20, opacity: 0.8 }}>
+                        Designed with Huashu-Design
+                    </div>
+                </div>
+            );
+        };
+
+        function App() {
+            return (
+                <Stage duration={60} bgColor="#0b0b0d">
+                    <Sprite start={0} end={5}>
+                        <TitleScene />
+                    </Sprite>
+                    <Sprite start={5} end={25}>
+                        <MockupShowcase />
+                    </Sprite>
+                    <Sprite start={25} end={45}>
+                        <UIExplode />
+                    </Sprite>
+                    <Sprite start={45} end={60}>
+                        <Outro />
+                    </Sprite>
+                    
+                    {/* Background tech lines */}
+                    <div style={{ position: 'absolute', inset: 0, opacity: 0.1, pointerEvents: 'none' }}>
+                        <div style={{ position: 'absolute', top: '20%', left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, #fff, transparent)' }} />
+                        <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, #fff, transparent)' }} />
+                        <div style={{ position: 'absolute', top: '80%', left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, #fff, transparent)' }} />
+                    </div>
+                </Stage>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

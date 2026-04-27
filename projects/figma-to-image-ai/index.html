@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Harness Production Suite</title>
+    <style>
+        :root { --accent: #000; --bg: #fff; --border: #e9ecef; }
+        body { font-family: 'Pretendard', sans-serif; font-size: 18px; display: flex; height: 100vh; margin: 0; background: var(--bg); }
+        .sidebar { width: 350px; border-right: 2px solid #000; padding: 25px; overflow-y: auto; background: #fafafa; }
+        .workspace { flex: 1; padding: 40px; overflow-y: auto; display: grid; grid-template-columns: 1fr 400px; gap: 50px; }
+        .scene-item { padding: 22px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 12px; cursor: pointer; font-weight: 800; font-size: 1.1rem; background: #fff; }
+        .scene-item.active { border: 3px solid #000; background: #f0f0f0; }
+        .label { font-size: 0.9rem; font-weight: 900; color: #444; margin: 25px 0 10px; text-transform: uppercase; }
+        textarea, input, select { width: 100%; background: #fff; border: 1px solid #ddd; padding: 18px; border-radius: 10px; font-size: 1.1rem; box-sizing: border-box; }
+        button { background: #000; color: #fff; border: none; padding: 20px; border-radius: 10px; cursor: pointer; font-weight: 900; font-size: 1.2rem; width: 100%; margin-top: 20px; }
+        .config-box { background: #f8f9fa; padding: 20px; border-radius: 15px; border: 1px solid var(--border); }
+        #preview-img { width: 100%; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div id="scene-list"></div>
+        <div id="pagination" style="margin-top:20px; display:flex; gap:5px; justify-content:center; flex-wrap: wrap;"></div>
+    </div>
+    <div class="workspace">
+        <div class="viewer-area">
+            <h2 id="title" style="font-size: 2.5rem; margin-bottom: 20px;">Select Scene</h2>
+            <img id="preview-img">
+            <div id="status" style="margin-top:20px; font-weight:800; font-size: 1.2rem;">Ready.</div>
+        </div>
+        <div class="control-area">
+            <div class="label">GLOBAL BASE PROMPT</div>
+            <textarea id="base-prompt" rows="2"></textarea>
+            <div class="label">1. 상황 묘사 (한글)</div>
+            <textarea id="desc-kr" rows="3" readonly></textarea>
+            <div class="label">2. 행동 태그 (수정 가능)</div>
+            <textarea id="prompt-tags" rows="5"></textarea>
+            <button id="exec">GENERATE</button>
+            <div class="config-box" style="margin-top:20px;">
+                <div class="label">AI Settings</div>
+                <label class="label">Steps</label><input type="number" id="cfg-steps" value="28">
+                <label class="label">Prompt Guidance</label><input type="number" id="cfg-scale" value="6.8" step="0.1">
+                <label class="label">Seed</label><input type="number" id="cfg-seed" value="0">
+                <label class="label">Guidance Rescale</label><input type="number" value="0.5" step="0.1" id="cfg-rescale">
+            </div>
+        </div>
+    </div>
+    <script>
+        let scenes = [], currentPage = 0;
+        const perPage = 10;
+        async function init() {
+            const res = await fetch('scenes.json', {cache:'no-store'});
+            scenes = await res.json();
+            renderPagination();
+        }
+        function renderPagination() {
+            const list = document.getElementById('scene-list'), pg = document.getElementById('pagination');
+            list.innerHTML = pg.innerHTML = '';
+            
+            const totalPages = Math.ceil(scenes.length / perPage);
+            const start = currentPage * perPage, end = Math.min(start + perPage, scenes.length);
+            for(let i = start; i < end; i++) {
+                const s = scenes[i], div = document.createElement('div');
+                div.className = 'scene-item';
+                div.innerText = s.scene_no;
+                div.onclick = () => selectScene(i);
+                list.appendChild(div);
+            }
+
+            // 페이지 버튼 전체 생성
+            for(let p = 0; p < totalPages; p++) {
+                const btn = document.createElement('button');
+                btn.style.width = '40px'; btn.style.padding = '5px'; btn.innerText = p + 1;
+                btn.style.marginTop = '0';
+                btn.onclick = () => { currentPage = p; renderPagination(); };
+                pg.appendChild(btn);
+            }
+            selectScene(start);
+        }
+        function selectScene(i) {
+            document.querySelectorAll('.scene-item').forEach((el, idx) => el.className = (idx + currentPage*perPage === i) ? 'scene-item active' : 'scene-item');
+            const s = scenes[i];
+            document.getElementById('title').innerText = s.scene_no;
+            document.getElementById('desc-kr').value = s.description || "";
+            document.getElementById('prompt-tags').value = s.prompt_en || "";
+            const img = document.getElementById('preview-img');
+            img.src = `output/${s.scene_no.replace(' ', '_')}.png?t=${Date.now()}`;
+            img.style.display = 'block';
+        }
+        document.getElementById('exec').onclick = async () => {
+            const i = scenes.findIndex(s => s.scene_no === document.getElementById('title').innerText);
+            const s = scenes[i];
+            document.getElementById('status').innerText = "Generating...";
+            try {
+                const res = await fetch('http://localhost:3000/api/produce-scene', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        scene_id: s.scene_no.replace(' ', '_'),
+                        prompt: `${document.getElementById('base-prompt').value}, ${document.getElementById('prompt-tags').value}`,
+                        settings: { steps: document.getElementById('cfg-steps').value, scale: document.getElementById('cfg-scale').value, seed: document.getElementById('cfg-seed').value, rescale: document.getElementById('cfg-rescale').value }
+                    })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('preview-img').src = data.imageData;
+                    document.getElementById('status').innerText = "Done!";
+                } else { alert("Error: " + data.error); }
+            } catch(e) { alert("연결 실패: " + e.message); }
+        };
+        init();
+    </script>
+</body>
+</html>

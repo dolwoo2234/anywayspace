@@ -253,3 +253,129 @@ input, textarea {
 .archive-card:hover .delete-action {
     opacity: 1;
 }
+
+/* 하네스 팀 아키텍처 (Harness Team Architecture) */
+.team-architecture-section {
+    margin-bottom: 30px;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+}
+
+body.dark-theme .team-architecture-section {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.section-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+}
+
+.org-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+}
+
+.org-node {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--bg-card);
+    padding: 14px 18px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    width: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.org-node:hover {
+    transform: translateX(5px);
+    border-color: var(--accent);
+    background: var(--bg-base);
+}
+
+.org-node.manager {
+    border-width: 2px;
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(181, 255, 69, 0.1);
+}
+
+.profile-pic {
+    font-size: 1.4rem;
+    background: var(--bg-base);
+    min-width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.profile-info .rank {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+.profile-info .role {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    font-weight: 800;
+}
+
+.profile-info .name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    opacity: 0.8;
+}
+
+.org-branches {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    padding-left: 30px;
+    position: relative;
+}
+
+/* 수직 연결선 */
+.org-branches::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: -15px;
+    bottom: 25px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--border));
+    border-radius: 2px;
+}
+
+/* 개별 노드 연결 수평선 */
+.org-node.specialist::before {
+    content: '';
+    position: absolute;
+    left: -15px;
+    top: 50%;
+    width: 15px;
+    height: 2px;
+    background: var(--border);
+}

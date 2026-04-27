@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harness Factory - Anyway Space</title>
+    <link rel="stylesheet" href="../../global-theme.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <style>
+        :root {
+            --radius-xl: 32px;
+            --accent-rgb: 181, 255, 69;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Pretendard', sans-serif;
+            padding: 80px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            max-width: 800px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--text-main), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* 팀 아키텍처 대시보드 */
+        .harness-dashboard {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+            position: relative;
+            overflow: visible; /* 그림자가 잘리지 않도록 */
+        }
+
+        .harness-dashboard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: var(--accent);
+        }
+
+        .org-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            position: relative;
+        }
+
+        .org-node {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: var(--bg-base);
+            padding: 20px 24px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 280px; /* 크기 최적화 */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 2;
+        }
+
+        .org-node:hover {
+            transform: scale(1.02) translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(var(--accent-rgb), 0.1);
+        }
+
+        .org-node.manager {
+            border-width: 2px;
+            border-color: var(--accent);
+            background: rgba(var(--accent-rgb), 0.02);
+            max-width: 300px;
+        }
+
+        .profile-pic {
+            font-size: 2rem;
+            background: var(--bg-card);
+            min-width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0; /* 텍스트 넘침 방지 */
+        }
+
+        .profile-info .rank {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        .profile-info .role {
+            font-size: 1rem;
+            color: var(--text-main);
+            font-weight: 900;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-info .name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+
+        .org-branches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* 유연한 그리드 */
+            gap: 20px;
+            width: 100%;
+            position: relative;
+            justify-items: center;
+        }
+
+        /* 수직 연결선 (부장에서 아래로) */
+        .org-chart::after {
+            content: '';
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            width: 2px;
+            height: 40px;
+            background: var(--accent);
+            transform: translateX(-50%);
+        }
+
+        /* 수평 연결선 (가운데로 모이는 선) */
+        .org-branches::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: var(--border);
+        }
+
+        /* 각 전문가에서 위로 올라가는 선 */
+        .org-node.specialist::after {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            width: 2px;
+            height: 40px;
+            background: var(--border);
+            transform: translateX(-50%);
+        }
+
+        .org-node.specialist:nth-child(2)::after {
+            background: var(--accent);
+        }
+
+        @media (max-width: 900px) {
+            .org-branches {
+                grid-template-columns: 1fr;
+                padding-left: 40px;
+                border-left: 2px dashed var(--border);
+            }
+            .org-branches::before, .org-node.specialist::after, .org-chart::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Harness Factory</h1>
+        <p>프로젝트의 목표와 도메인을 분석하여 최적의 에이전트 팀 아키텍처를 설계합니다. 6가지 사전 정의된 패턴을 통해 워크플로우를 자동화하고 품질을 극대화합니다.</p>
+    </header>
+
+    <div class="harness-dashboard">
+        <div class="org-chart">
+            <!-- 부장 / 팀 설계자 -->
+            <div class="org-node manager">
+                <div class="profile-pic">👑</div>
+                <div class="profile-info">
+                    <span class="rank">부장 (Supervisor)</span>
+                    <span class="role">Project Manager</span>
+                    <span class="name">Team Architect</span>
+                </div>
+            </div>
+
+            <!-- 하위 전문가 그룹 -->
+            <div class="org-branches">
+                <!-- 전문가 1 -->
+                <div class="org-node specialist">
+                    <div class="profile-pic">📝</div>
+                    <div class="profile-info">
+                        <span class="rank">전문가 (Specialist)</span>
+                        <span class="role">AI Content Specialist</span>
+                        <span class="name">Prompt Engineer</span>
+                    </div>
+                </div>
+
+                <!-- 전문가 2 (강조) -->
+                <div class="org-node specialist" style="border-color: var(--accent);">
+                    <div class="profile-pic">🎨</div>
+                    <div class="profile-info">
+                        <span class="rank">수석 (Director)</span>
+                        <span class="role">Creative Director</span>
+                        <span class="name">UI/UX Designer</span>
+                    </div>
+                </div>
+
+                <!-- 전문가 3 -->
+                <div class="org-node specialist">
+                    <div class="profile-pic">💻</div>
+                    <div class="profile-info">
+                        <span class="rank">백엔드 (Systems)</span>
+                        <span class="role">Systems Engineer</span>
+                        <span class="name">Backend Expert</span>
+                    </div>
+                </div>
+
+                <!-- 전문가 4 -->
+                <div class="org-node specialist">
+                    <div class="profile-pic">🔎</div>
+                    <div class="profile-info">
+                        <span class="rank">검수 (Auditor)</span>
+                        <span class="role">Quality Guardian</span>
+                        <span class="name">QA Auditor</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../global-theme.js"></script>
+</body>
+</html>

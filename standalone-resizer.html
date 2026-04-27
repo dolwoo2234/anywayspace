@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anyway Space - Smart Image Resizer</title>
+    <style>
+        :root {
+            --bg-base: #050505;
+            --bg-card: #111111;
+            --accent: #b5ff45;
+            --text-main: #ffffff;
+            --text-dim: #777777;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+        body.light-theme {
+            --bg-base: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-main: #1c1e21;
+            --text-dim: #65676b;
+            --accent: #2ecc71;
+            --border: rgba(0, 0, 0, 0.1);
+        }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-base); color: var(--text-main); padding: 40px 20px; transition: 0.3s; }
+        .container { max-width: 800px; margin: auto; background: var(--bg-card); padding: 30px; border-radius: 24px; border: 1px solid var(--border); }
+        .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .upload-area { border: 2px dashed var(--border); padding: 40px; text-align: center; margin-bottom: 20px; cursor: pointer; color: var(--text-dim); border-radius: 12px; }
+        .upload-area:hover { border-color: var(--accent); }
+        .preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+        .preview-item { border: 1px solid var(--border); padding: 5px; border-radius: 8px; }
+        img { max-width: 200px; height: auto; display: block; border-radius: 4px; }
+        .download-btn { display: inline-block; padding: 8px 16px; background: var(--accent); color: #000; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 13px; margin-top: 8px;}
+        button { padding: 10px 18px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); border-radius: 12px; cursor: pointer; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header-controls">
+            <h1>Smart Image Resizer</h1>
+            <button id="theme-toggle">☀️ Light Mode</button>
+        </div>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">이미지를 가로/세로 비율에 맞춰 1024x576 또는 576x1024로 자동 리사이즈합니다.</p>
+        
+        <div class="header-controls">
+            <label><input type="checkbox" id="select-all"> 전체 선택</label>
+            <button id="download-selected" class="download-btn" style="background: var(--accent); border:none;">일괄 다운로드</button>
+        </div>
+        <div class="upload-area" id="drop-zone">
+            <p>이미지 파일을 드래그하거나 클릭하여 선택하세요</p>
+            <input type="file" id="upload" accept="image/*" multiple style="display: none;">
+        </div>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <div id="preview" class="preview-container"></div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('upload'), preview = document.getElementById('preview'), canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d'), selectAll = document.getElementById('select-all'), downloadSelected = document.getElementById('download-selected'), themeToggle = document.getElementById('theme-toggle');
+
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => Array.from(e.target.files).forEach(processFile);
+        dropZone.ondragover = (e) => e.preventDefault();
+        dropZone.ondrop = (e) => { e.preventDefault(); Array.from(e.dataTransfer.files).forEach(processFile); };
+        
+        themeToggle.onclick = () => {
+            const isLight = document.body.classList.toggle('light-theme');
+            themeToggle.innerHTML = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
+        };
+
+        selectAll.onchange = (e) => document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = e.target.checked);
+
+        async function processFile(file) {
+            if (!file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const isLandscape = img.width >= img.height, targetW = isLandscape ? 1024 : 576, targetH = isLandscape ? 576 : 1024;
+                    canvas.width = targetW; canvas.height = targetH;
+                    const scale = Math.max(targetW / img.width, targetH / img.height), w = img.width * scale, h = img.height * scale;
+                    ctx.fillStyle = "#fff"; ctx.fillRect(0,0,targetW,targetH);
+                    ctx.drawImage(img, (targetW-w)/2, (targetH-h)/2, w, h);
+                    const dataUrl = canvas.toDataURL('image/jpeg'), div = document.createElement('div');
+                    div.className = 'preview-item';
+                    div.innerHTML = `<input type="checkbox" class="item-checkbox" data-filename="resized_${file.name}"><img src="${dataUrl}"><p style="font-size:12px; margin:4px 0;">${targetW}x${targetH}</p><a href="${dataUrl}" download="resized_${file.name}" class="download-btn">Download</a>`;
+                    preview.appendChild(div);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        downloadSelected.onclick = async () => {
+            const checked = document.querySelectorAll('.item-checkbox:checked');
+            if (!checked.length) return alert('이미지를 선택하세요.');
+            const zip = new JSZip();
+            checked.forEach(cb => zip.file(cb.dataset.filename, cb.closest('.preview-item').querySelector('img').src.split(',')[1], {base64: true}));
+            saveAs(await zip.generateAsync({type: 'blob'}), 'images.zip');
+        };
+    </script>
+</body>
+</html>
